@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import whois from 'whois';
+import { lookup } from 'whois'; // ✅ FIX: Named import use kar rahe hain
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -11,7 +11,8 @@ export async function GET(request) {
 
   // Promise wrapper for whois lookup
   const lookupPromise = new Promise((resolve, reject) => {
-    whois.lookup(domain, { timeout: 5000 }, (err, data) => {
+    // ✅ FIX: 'whois.lookup' ki jagah seedha 'lookup' use karenge
+    lookup(domain, { timeout: 5000 }, (err, data) => {
       if (err) {
         resolve({ error: true, raw: '' });
         return;

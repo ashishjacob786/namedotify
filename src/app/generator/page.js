@@ -19,7 +19,7 @@ export default function QrPage() {
   const [uploading, setUploading] = useState(false);
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
-  const [qrStyle, setQrStyle] = useState('squares'); // 'squares' | 'dots' | 'fluid'
+  const [qrStyle, setQrStyle] = useState('squares'); 
   const [eyeRadius, setEyeRadius] = useState(0); 
   const [template, setTemplate] = useState('modern');
 
@@ -92,15 +92,16 @@ export default function QrPage() {
   };
 
   return (
-    // ✅ FIX: 'pt-24' added to prevent black strip
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
+    // ✅ FIX: 'pt-32' increased padding to strictly cover top area
+    // 'bg-gray-50' is on the parent to ensure background color fills the padding
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-32">
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
+        {/* Header: REMOVED all 'mt-' (margin-top) to prevent black strip */}
         <div className="text-center mb-12">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wide mb-4">
                 <QrCode size={12} className="mr-1" /> Marketing Tools
@@ -218,7 +219,7 @@ export default function QrPage() {
 
             {/* RIGHT: Preview (Cols 6) */}
             <div className="lg:col-span-6">
-                <div className="sticky top-24">
+                <div className="sticky top-32">
                     <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 md:p-10 rounded-2xl shadow-2xl flex flex-col items-center justify-center min-h-[500px] border border-gray-700">
                         
                         {/* CAPTURE ZONE */}

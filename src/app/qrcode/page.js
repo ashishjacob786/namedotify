@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
-import { QrCode, Download, Link as LinkIcon, Palette, Upload, Trash2, Wifi, Mail, FileText, Smartphone, Loader2 } from 'lucide-react';
+import { QrCode, Download, Link as LinkIcon, Palette, Upload, Trash2, Wifi, Mail, FileText, Smartphone, Loader2, Layout, Square, Circle } from 'lucide-react';
 
 export default function QrPage() {
   const [activeTab, setActiveTab] = useState('url'); // url, wifi, email, text
@@ -15,94 +15,103 @@ export default function QrPage() {
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
 
-  // Design
-  const [label, setLabel] = useState('');
+  // Design State
+  const [label, setLabel] = useState('SCAN ME');
   const [icon, setIcon] = useState(null);
-  const [uploading, setUploading] = useState(false); // ✅ NEW: Uploading State
+  const [uploading, setUploading] = useState(false);
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
-  const [frame, setFrame] = useState('none'); // none, simple, scanme
   
-  // Generate Final QR Value based on Tab
+  // Advanced Design Options
+  const [qrStyle, setQrStyle] = useState('squares'); // 'squares' or 'dots'
+  const [eyeRadius, setEyeRadius] = useState(0); // 0 to 15 (Corner roundness)
+  const [template, setTemplate] = useState('classic'); // 'classic', 'modern', 'polaroid'
+
+  // Generate Final QR Value
   const getQrValue = () => {
     switch(activeTab) {
-        case 'url': return url;
-        case 'text': return text;
+        case 'url': return url || 'https://namedotify.com';
+        case 'text': return text || 'Hello World';
         case 'wifi': return `WIFI:T:WPA;S:${wifiSsid};P:${wifiPass};;`;
         case 'email': return `mailto:${email}?subject=${subject}`;
         default: return url;
     }
   };
 
-  // ✅ IMPROVED UPLOAD FUNCTION WITH LOADING
   const handleIconUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setUploading(true); // Loading Start
-      
+      setUploading(true);
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Thoda fake delay taaki user ko loading dikhe (Better UX)
         setTimeout(() => {
             setIcon(reader.result);
-            setUploading(false); // Loading Stop
+            setUploading(false);
         }, 800);
       };
       reader.readAsDataURL(file);
     }
   };
 
+  // ✅ FIXED DOWNLOAD FUNCTION (Solves 'lab' color error)
   const downloadQR = () => {
-    const element = document.getElementById('qr-download-area'); // ID se element dhundo
+    const element = document.getElementById('qr-download-area');
     
     if (!element) {
-        alert("Error: QR Code element not found on screen.");
+        alert("Error: Element not found.");
         return;
     }
 
     setTimeout(async () => {
         try {
             const canvas = await html2canvas(element, {
-                useCORS: true,      
-                allowTaint: true,   
-                scale: 3,           
-                backgroundColor: null, 
+                useCORS: true,
+                allowTaint: true,
+                scale: 3, // High Quality
+                backgroundColor: null, // Transparent background fix
                 logging: false,
-                ignoreElements: (node) => node.tagName === 'BUTTON' 
+                // Fix for 'lab' color error: Force sRGB
+                onclone: (clonedDoc) => {
+                    const el = clonedDoc.getElementById('qr-download-area');
+                    if (el) {
+                        // Ensure no modern CSS variables leak in
+                        el.style.fontFeatureSettings = '"liga" 0'; 
+                    }
+                }
             });
 
             const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');
             link.href = image;
-            link.download = `qrcode-${activeTab}-${Date.now()}.png`; 
+            link.download = `namedotify-qr-${Date.now()}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            console.error("Download Error Details:", error);
-            alert(`Download Failed: ${error.message}`); 
+            console.error("Download Error:", error);
+            alert("Download failed. Try changing the color slightly.");
         }
     }, 100);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans p-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="text-center mb-10 mt-6">
             <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-                <QrCode className="text-indigo-600 w-10 h-10" /> Ultimate QR Creator
+                <QrCode className="text-indigo-600 w-10 h-10" /> Ultimate QR Studio
             </h1>
-            <p className="text-gray-600">Create Wi-Fi, Email, Link, or Text QR Codes with custom designs.</p>
+            <p className="text-gray-600">Create professional, high-quality QR codes with custom styles and templates.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* LEFT SIDE: Controls (Cols 7) */}
-            <div className="lg:col-span-7 space-y-6">
+            {/* LEFT SIDE: Controls (Cols 6) */}
+            <div className="lg:col-span-6 space-y-6">
                 
-                {/* 1. Type Selection Tabs */}
+                {/* 1. Content Type */}
                 <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex flex-wrap gap-2">
                     {[
                         { id: 'url', icon: LinkIcon, label: 'URL' },
@@ -119,62 +128,49 @@ export default function QrPage() {
                                 : 'hover:bg-gray-100 text-gray-600'
                             }`}
                         >
-                            <tab.icon size={18} /> {tab.label}
+                            <tab.icon size={16} /> {tab.label}
                         </button>
                     ))}
                 </div>
 
                 {/* 2. Input Fields */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
-                    <h3 className="font-bold text-gray-800">1. Enter Content</h3>
-                    
-                    {activeTab === 'url' && (
-                        <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://yourwebsite.com" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                    )}
-
-                    {activeTab === 'text' && (
-                        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter your text here..." rows="3" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                    )}
-
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="font-bold text-gray-800 mb-4">1. Content</h3>
+                    {activeTab === 'url' && <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />}
+                    {activeTab === 'text' && <textarea value={text} onChange={(e) => setText(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />}
                     {activeTab === 'wifi' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" value={wifiSsid} onChange={(e) => setWifiSsid(e.target.value)} placeholder="Network Name (SSID)" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                            <input type="text" value={wifiPass} onChange={(e) => setWifiPass(e.target.value)} placeholder="Password" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <input type="text" value={wifiSsid} onChange={(e) => setWifiSsid(e.target.value)} placeholder="SSID" className="w-full p-3 border rounded-lg" />
+                            <input type="text" value={wifiPass} onChange={(e) => setWifiPass(e.target.value)} placeholder="Password" className="w-full p-3 border rounded-lg" />
                         </div>
                     )}
-
-                    {activeTab === 'email' && (
-                        <div className="space-y-3">
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Recipient Email" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                            <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject Line" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                        </div>
-                    )}
+                    {activeTab === 'email' && <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full p-3 border rounded-lg" />}
                 </div>
 
                 {/* 3. Design Controls */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
-                    <h3 className="font-bold text-gray-800">2. Customize Design</h3>
-                    
-                    {/* Label & Frame */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm text-gray-600 mb-1">Label / Text</label>
-                            <input type="text" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. SCAN ME" maxLength={20} className="w-full p-2 border rounded-lg" />
-                        </div>
-                        <div>
-                            <label className="block text-sm text-gray-600 mb-1">Frame Style</label>
-                            <select value={frame} onChange={(e) => setFrame(e.target.value)} className="w-full p-2 border rounded-lg bg-white">
-                                <option value="none">No Frame</option>
-                                <option value="simple">Simple Box</option>
-                                <option value="scanme">"Scan Me" Header</option>
-                            </select>
+                    <h3 className="font-bold text-gray-800">2. Design & Style</h3>
+
+                    {/* Template Selection */}
+                    <div>
+                        <label className="block text-sm text-gray-600 mb-2 font-semibold">Card Template</label>
+                        <div className="flex gap-2">
+                            {['classic', 'modern', 'polaroid'].map((t) => (
+                                <button 
+                                    key={t}
+                                    onClick={() => setTemplate(t)}
+                                    className={`flex-1 py-2 rounded-lg border capitalize ${template === t ? 'bg-indigo-50 border-indigo-500 text-indigo-700 font-bold' : 'bg-white border-gray-200'}`}
+                                >
+                                    {t}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
                     {/* Colors */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-gray-600 mb-1">QR Color</label>
+                            <label className="block text-sm text-gray-600 mb-1">Dots Color</label>
                             <input type="color" value={fgColor} onChange={(e) => setFgColor(e.target.value)} className="w-full h-10 cursor-pointer rounded border p-1" />
                         </div>
                         <div>
@@ -183,86 +179,123 @@ export default function QrPage() {
                         </div>
                     </div>
 
-                    {/* ✅ LOGO UPLOAD WITH LOADING EFFECT */}
-                    <div>
-                        <label className="block text-sm text-gray-600 mb-1">Center Logo</label>
-                        <div className="flex items-center gap-3">
-                            <label className={`cursor-pointer bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 flex items-center gap-2 transition text-sm font-medium ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                                {uploading ? <Loader2 className="animate-spin text-indigo-600" size={18} /> : <Upload size={18} />}
-                                {uploading ? 'Uploading...' : 'Choose Image'}
-                                <input type="file" accept="image/*" onChange={handleIconUpload} className="hidden" disabled={uploading} />
-                            </label>
+                    {/* QR Style (Dots vs Squares) */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm text-gray-600 mb-1">Pixel Style</label>
+                            <div className="flex gap-2">
+                                <button onClick={() => setQrStyle('squares')} className={`p-2 rounded border ${qrStyle === 'squares' ? 'bg-gray-200' : ''}`}><Square size={20}/></button>
+                                <button onClick={() => setQrStyle('dots')} className={`p-2 rounded border ${qrStyle === 'dots' ? 'bg-gray-200' : ''}`}><Circle size={20}/></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm text-gray-600 mb-1">Corner Roundness</label>
+                            <input type="range" min="0" max="20" value={eyeRadius} onChange={(e) => setEyeRadius(Number(e.target.value))} className="w-full accent-indigo-600" />
+                        </div>
+                    </div>
 
-                            {icon && !uploading && (
-                                <button onClick={() => setIcon(null)} className="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-lg border border-red-100" title="Remove Logo">
-                                    <Trash2 size={18} />
-                                </button>
-                            )}
+                    {/* Logo & Label */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm text-gray-600 mb-1">Label Text</label>
+                            <input type="text" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={15} className="w-full p-2 border rounded" />
+                        </div>
+                        <div>
+                            <label className="block text-sm text-gray-600 mb-1">Logo</label>
+                            <div className="flex items-center gap-2">
+                                <label className={`cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded border text-sm flex items-center gap-1 ${uploading ? 'opacity-50' : ''}`}>
+                                    {uploading ? <Loader2 size={14} className="animate-spin"/> : <Upload size={14} />} Upload
+                                    <input type="file" accept="image/*" onChange={handleIconUpload} className="hidden" disabled={uploading} />
+                                </label>
+                                {icon && <button onClick={() => setIcon(null)} className="text-red-500 p-2"><Trash2 size={16}/></button>}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* RIGHT SIDE: Preview (Cols 5) */}
-            <div className="lg:col-span-5">
+            {/* RIGHT SIDE: Preview (Cols 6) */}
+            <div className="lg:col-span-6">
                 <div className="sticky top-6">
-                    <div className="bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700 flex flex-col items-center justify-center min-h-[400px]">
+                    <div className="bg-gray-900 p-6 md:p-10 rounded-2xl shadow-2xl flex flex-col items-center justify-center min-h-[500px]">
                         
-                        {/* 🟢 THIS AREA WILL BE DOWNLOADED 🟢 */}
+                        {/* 🟢 DOWNLOAD AREA START 🟢 */}
                         <div 
                             id="qr-download-area" 
-                            className={`relative bg-white p-4 flex flex-col items-center justify-center transition-all duration-300 ${
-                                frame === 'simple' ? 'border-4 border-black rounded-lg p-6' : 
-                                frame === 'scanme' ? 'pt-12 pb-6 px-6 rounded-xl shadow-lg' : 'rounded-xl'
-                            }`}
-                            style={{ backgroundColor: bgColor }}
+                            className="transition-all duration-300 transform hover:scale-[1.01]"
+                            style={{ 
+                                // Explicit styling to prevent 'lab' errors
+                                backgroundColor: template === 'polaroid' ? '#ffffff' : (template === 'modern' ? fgColor : 'transparent'),
+                                padding: template === 'polaroid' ? '20px 20px 60px 20px' : '0px',
+                                borderRadius: template === 'modern' ? '24px' : '0px',
+                                boxShadow: template === 'polaroid' ? '0 10px 25px rgba(0,0,0,0.1)' : 'none',
+                                textAlign: 'center'
+                            }}
                         >
-                            {/* Scan Me Frame Header */}
-                            {frame === 'scanme' && (
-                                <div className="absolute top-0 left-0 right-0 bg-black text-white text-center py-2 font-bold uppercase tracking-widest text-sm rounded-t-lg">
-                                    Scan Me
-                                </div>
-                            )}
+                            {/* Inner Card */}
+                            <div 
+                                style={{
+                                    backgroundColor: bgColor,
+                                    padding: '25px',
+                                    borderRadius: template === 'modern' ? '20px' : (template === 'polaroid' ? '4px' : '16px'),
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: template === 'modern' ? '0 5px 15px rgba(0,0,0,0.2)' : 'none'
+                                }}
+                            >
+                                {/* Header Text */}
+                                {label && template === 'modern' && (
+                                    <div style={{ marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase', color: fgColor, letterSpacing: '1px' }}>
+                                        {label}
+                                    </div>
+                                )}
 
-                            <QRCodeCanvas 
-                                value={getQrValue()} 
-                                size={250} 
-                                fgColor={fgColor}
-                                bgColor={bgColor}
-                                level={"H"} 
-                                includeMargin={true}
-                                imageSettings={icon ? {
-                                    src: icon,
-                                    x: undefined,
-                                    y: undefined,
-                                    height: 50,
-                                    width: 50,
-                                    excavate: true,
-                                } : undefined}
-                            />
+                                {/* THE QR CODE */}
+                                <QRCodeCanvas 
+                                    value={getQrValue()} 
+                                    size={280} 
+                                    fgColor={fgColor}
+                                    bgColor={bgColor}
+                                    level={"H"}
+                                    includeMargin={false}
+                                    imageSettings={icon ? { src: icon, height: 60, width: 60, excavate: true } : undefined}
+                                    style={{ 
+                                        borderRadius: `${eyeRadius}px` // Applying radius to the canvas element roughly
+                                    }}
+                                />
 
-                            {label && (
-                                <div 
-                                    className="mt-2 text-xl font-bold text-center uppercase tracking-wide"
-                                    style={{ color: fgColor, maxWidth: '250px' }}
-                                >
-                                    {label}
-                                </div>
-                            )}
+                                {/* Footer Text */}
+                                {label && template !== 'modern' && (
+                                    <div style={{ 
+                                        marginTop: '15px', 
+                                        fontFamily: 'monospace', 
+                                        fontWeight: 'bold', 
+                                        color: fgColor, 
+                                        fontSize: '20px',
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {label}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        {/* 🔴 END DOWNLOAD AREA 🔴 */}
+                        {/* 🔴 DOWNLOAD AREA END 🔴 */}
 
-                        <p className="mt-8 text-gray-400 text-sm mb-4 flex items-center gap-2">
-                            <Smartphone size={16} /> Open camera to test
-                        </p>
+                        <div className="mt-8 w-full max-w-sm space-y-3">
+                            <p className="text-gray-400 text-xs text-center flex items-center justify-center gap-1">
+                                <Smartphone size={12} /> Test with your camera before downloading
+                            </p>
+                            <button 
+                                onClick={downloadQR}
+                                className="bg-indigo-500 hover:bg-indigo-600 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-indigo-500/40 transition flex items-center justify-center gap-2"
+                            >
+                                <Download size={22} />
+                                Download Card
+                            </button>
+                        </div>
 
-                        <button 
-                            onClick={downloadQR}
-                            className="bg-green-500 hover:bg-green-600 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-green-500/30 transition transform hover:scale-[1.02] flex items-center justify-center gap-2"
-                        >
-                            <Download size={24} />
-                            Download High Quality PNG
-                        </button>
                     </div>
                 </div>
             </div>

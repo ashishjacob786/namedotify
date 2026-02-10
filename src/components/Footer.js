@@ -66,7 +66,7 @@ export default function Footer() {
                 <h3 className="text-sm font-bold text-gray-900 tracking-wider uppercase mb-4">Legal & Support</h3>
                 <ul className="space-y-3">
                     <li>
-                        <a href="https://snericpacific.com" target="_blank" rel="noopener noreferrer" className="text-base text-gray-500 hover:text-blue-600 transition">
+                        <a href="/about" target="_blank" rel="noopener noreferrer" className="text-base text-gray-500 hover:text-blue-600 transition">
                             About Company
                         </a>
                     </li>

@@ -43,15 +43,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div className="text-2xl font-bold text-blue-600 tracking-tight cursor-pointer" onClick={() => window.location.reload()}>namedotify<span className="text-gray-400">.com</span></div>
-        <div className="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
-          <a href="#" className="hover:text-blue-600">Tools</a>
-          <a href="#" className="hover:text-blue-600">Blog</a>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Get Started</button>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <header className="max-w-5xl mx-auto text-center py-20 px-4">
@@ -126,10 +117,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-12 text-center text-gray-500 text-sm">
-        <p>&copy; 2024 namedotify.com. All rights reserved. • <a href="#" className="hover:text-blue-600">Privacy Policy</a></p>
-      </footer>
     </div>
   );
 }

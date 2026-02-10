@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import whois from 'whois-json';
+import whois from 'whois';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -9,20 +9,47 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Domain name is required' }, { status: 400 });
   }
 
-  try {
-    // 1. डोमेन चेक करें (WHOIS lookup)
-    const results = await whois(domain);
-    
-    // 2. लॉजिक: अगर रिजल्ट में 'Domain Name' नहीं मिलता, तो शायद वो खाली है
-    const isTaken = results.domainName || results.domain; 
+  // Promise wrapper for whois lookup
+  const lookupPromise = new Promise((resolve, reject) => {
+    whois.lookup(domain, { timeout: 5000 }, (err, data) => {
+      if (err) {
+        resolve({ error: true, raw: '' });
+        return;
+      }
+      resolve({ error: false, raw: data });
+    });
+  });
 
-    if (isTaken) {
-      return NextResponse.json({ available: false });
-    } else {
-      return NextResponse.json({ available: true });
+  try {
+    const result = await lookupPromise;
+    
+    if (result.error) {
+       // Agar connection fail hua, to assume taken (unsafe to say available)
+       return NextResponse.json({ domain, available: false, error: 'Lookup failed' });
     }
 
+    const rawData = result.raw.toLowerCase();
+
+    // Ye keywords batate hain ki domain available hai
+    const availablePatterns = [
+        'no match for',        // .com, .net
+        'not found',           // .in, .org, .me
+        'no data found',       // .co.in
+        'is available',        // Some other TLDs
+        'no entries found',    // .ca etc
+        'status: free',
+        'nothing new to add'
+    ];
+
+    // Check karo ki upar wale keywords me se koi match hua kya?
+    const isAvailable = availablePatterns.some(pattern => rawData.includes(pattern));
+
+    return NextResponse.json({ 
+        domain, 
+        available: isAvailable 
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Check failed' }, { status: 500 });
+    return NextResponse.json({ available: false }, { status: 500 });
   }
 }

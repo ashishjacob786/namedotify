@@ -10,7 +10,28 @@ export default function Home() {
   const [results, setResults] = useState([]); // Ab hum array use karenge (Multiple results ke liye)
 
   // In extensions ko hum auto-check karenge
-  const tlds = ['.com', '.in', '.org', '.net', '.co', '.io'];
+  const tlds = [
+    // Global & Popular
+    '.com', '.net', '.org', '.info', '.biz', '.co', '.xyz',
+    
+    // India Specific
+    '.in', '.co.in', '.net.in', '.org.in', '.ind.in', '.gen.in', '.firm.in',
+    
+    // Tech & Startup
+    '.io', '.ai', '.me', '.app', '.dev', '.tech', '.cloud', '.software', '.systems',
+    
+    // Business & Store
+    '.store', '.shop', '.online', '.site', '.website', '.agency', '.consulting',
+    
+    // Creative & Media
+    '.tv', '.cc', '.ws', '.fm', '.studio', '.design', '.photography', '.art',
+    
+    // Lifestyle & Blog
+    '.blog', '.news', '.life', '.world', '.live', '.space', '.today', '.guru',
+    
+    // Professional
+    '.pro', '.global', '.ltd', '.company', '.solutions', '.services'
+  ];
 
   const checkDomain = async () => {
     if (!input.trim()) return;

@@ -5,26 +5,51 @@ import Link from 'next/link';
 import { Search, Globe, Server, Shield, Activity, Calendar, Database, LayoutGrid, Zap, Loader2, CheckCircle, XCircle, ArrowRight, Key, QrCode, MapPin, Lock } from 'lucide-react';
 
 export default function Home() {
-  const [domain, setDomain] = useState('');
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  const [results, setResults] = useState([]); // Ab hum array use karenge (Multiple results ke liye)
+
+  // In extensions ko hum auto-check karenge
+  const tlds = ['.com', '.in', '.org', '.net', '.co', '.io'];
 
   const checkDomain = async () => {
-    if (!domain) return;
+    if (!input.trim()) return;
     setLoading(true);
-    setResult(null);
-    try {
-      const response = await axios.get(`/api/check?domain=${domain}`);
-      setResult(response.data.available ? 'available' : 'taken');
-    } catch (error) {
-      console.error("Error checking domain", error);
-      alert("Something went wrong.");
-    } finally {
-      setLoading(false);
+    setResults([]); // Purane result saaf karo
+
+    // Logic: Agar user ne extension (.) nahi lagaya, to list banao.
+    // Agar lagaya hai (e.g. google.com), to sirf wahi check karo.
+    let domainsToCheck = [];
+    
+    if (input.includes('.')) {
+      domainsToCheck.push(input);
+    } else {
+      // Keyword mode: Add all TLDs
+      const cleanKeyword = input.replace(/[^a-zA-Z0-9-]/g, ''); // Remove spaces/symbols
+      domainsToCheck = tlds.map(tld => `${cleanKeyword}${tld}`);
     }
+
+    // Har domain ko check karo (Parallel Requests)
+    // Hum Promise.all nahi use karenge taaki jo pehle load ho wo dikh jaye
+    const checkPromises = domainsToCheck.map(async (domain) => {
+      try {
+        const response = await axios.get(`/api/check?domain=${domain}`);
+        const status = response.data.available ? 'available' : 'taken';
+        
+        // Result list update karo (Jo pehle aayega wo jud jayega)
+        setResults((prev) => [...prev, { domain, status }]);
+      } catch (error) {
+        console.error(`Error checking ${domain}`, error);
+        setResults((prev) => [...prev, { domain, status: 'error' }]);
+      }
+    });
+
+    // Jab sab khatam ho jaye to loading band karo
+    await Promise.allSettled(checkPromises);
+    setLoading(false);
   };
 
-  // ✅ Updated Tools List (All 10 Tools)
+  // ✅ Tools List
   const tools = [
     { name: 'AI Name Generator', icon: <Zap className="w-6 h-6 text-yellow-500" />, desc: 'Generate creative business names', link: '/generator' },
     { name: 'Whois Lookup', icon: <Database className="w-6 h-6 text-blue-500" />, desc: 'Check domain ownership info', link: '/whois' },
@@ -45,20 +70,20 @@ export default function Home() {
           Find Your Perfect <span className="text-blue-600">Domain Name</span>
         </h1>
         <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
-          Instant availability check, AI suggestions, and powerful SEO tools for webmasters.
+          Enter a keyword (e.g. "NameDotify") to check availability across .com, .in, .org, and more instantly.
         </p>
 
         {/* Search Bar */}
-        <div className="max-w-2xl mx-auto relative group mb-8">
+        <div className="max-w-2xl mx-auto relative group mb-12">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-6 w-6 text-gray-400" />
           </div>
           <input
             type="text"
             className="block w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-lg transition transform group-hover:scale-[1.01]"
-            placeholder="Type a domain (e.g., namedotify.com)..."
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
+            placeholder="Type a name (e.g. 'dreamcafe')..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && checkDomain()}
           />
           <button 
@@ -66,30 +91,53 @@ export default function Home() {
             disabled={loading}
             className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white px-6 rounded-xl font-medium hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-70"
           >
-            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Analyze'}
+            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Search'}
           </button>
         </div>
 
-        {/* Result Area */}
-        {result && (
-          <div className={`max-w-2xl mx-auto p-4 rounded-xl border-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300 ${result === 'available' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
-            <div className="flex items-center gap-3">
-              {result === 'available' ? <CheckCircle className="h-6 w-6 text-green-600" /> : <XCircle className="h-6 w-6 text-red-600" />}
-              <div className="text-left">
-                <p className="font-bold text-lg">{domain}</p>
-                <p className="text-sm opacity-90">{result === 'available' ? 'is available! Grab it now.' : 'is already taken.'}</p>
+        {/* Multi-Result Area (List View) */}
+        {results.length > 0 && (
+          <div className="max-w-2xl mx-auto space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {results.sort((a, b) => a.status === 'available' ? -1 : 1).map((item, index) => (
+              <div 
+                key={index}
+                className={`p-4 rounded-xl border flex items-center justify-between transition ${
+                    item.status === 'available' 
+                    ? 'bg-green-50 border-green-200 shadow-sm hover:shadow-md' 
+                    : 'bg-white border-gray-200 opacity-80'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {item.status === 'available' ? (
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  ) : (
+                    <XCircle className="h-6 w-6 text-red-500" />
+                  )}
+                  <div className="text-left">
+                    <p className={`font-bold text-lg ${item.status === 'available' ? 'text-gray-900' : 'text-gray-500 line-through'}`}>
+                        {item.domain}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                        {item.status === 'available' ? 'Available' : 'Taken'}
+                    </p>
+                  </div>
+                </div>
+
+                {item.status === 'available' ? (
+                  <a 
+                    href={`https://www.hostinger.com/web-hosting?domain=${item.domain}`} 
+                    target="_blank" 
+                    className="bg-green-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-green-700 text-sm flex items-center gap-1 shadow-sm"
+                  >
+                    Buy <ArrowRight size={14}/>
+                  </a>
+                ) : (
+                  <Link href={`/whois?domain=${item.domain}`} className="text-sm text-gray-400 hover:text-blue-600 underline">
+                    Check Whois
+                  </Link>
+                )}
               </div>
-            </div>
-            {result === 'available' && (
-              <a href={`https://www.hostinger.com/web-hosting?domain=${domain}`} target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 text-sm flex items-center gap-1">
-                Buy Now <ArrowRight size={14}/>
-              </a>
-            )}
-            {result === 'taken' && (
-              <Link href={`/whois?domain=${domain}`} className="bg-white border border-red-200 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-50 text-sm">
-                Who owns it?
-              </Link>
-            )}
+            ))}
           </div>
         )}
       </header>

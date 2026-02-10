@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
-import { QrCode, Download, Link as LinkIcon, Palette, Image as ImageIcon, Type, Upload, Trash2, Wifi, Mail, FileText, Smartphone } from 'lucide-react';
+import { QrCode, Download, Link as LinkIcon, Palette, Upload, Trash2, Wifi, Mail, FileText, Smartphone, Loader2 } from 'lucide-react';
 
 export default function QrPage() {
   const [activeTab, setActiveTab] = useState('url'); // url, wifi, email, text
@@ -18,12 +18,11 @@ export default function QrPage() {
   // Design
   const [label, setLabel] = useState('');
   const [icon, setIcon] = useState(null);
+  const [uploading, setUploading] = useState(false); // ✅ NEW: Uploading State
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
   const [frame, setFrame] = useState('none'); // none, simple, scanme
   
-  const qrRef = useRef(null);
-
   // Generate Final QR Value based on Tab
   const getQrValue = () => {
     switch(activeTab) {
@@ -35,38 +34,55 @@ export default function QrPage() {
     }
   };
 
+  // ✅ IMPROVED UPLOAD FUNCTION WITH LOADING
   const handleIconUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setUploading(true); // Loading Start
+      
       const reader = new FileReader();
-      reader.onloadend = () => setIcon(reader.result);
+      reader.onloadend = () => {
+        // Thoda fake delay taaki user ko loading dikhe (Better UX)
+        setTimeout(() => {
+            setIcon(reader.result);
+            setUploading(false); // Loading Stop
+        }, 800);
+      };
       reader.readAsDataURL(file);
     }
   };
 
-  const downloadQR = async () => {
-    if (!qrRef.current) return;
+  const downloadQR = () => {
+    const element = document.getElementById('qr-download-area'); // ID se element dhundo
     
-    try {
-        // Wait for images to load
-        const canvas = await html2canvas(qrRef.current, {
-            useCORS: true, // Cross-origin images allow
-            scale: 3,      // High Resolution (3x quality)
-            backgroundColor: null, 
-            logging: false
-        });
-
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement('a');
-        link.href = image;
-        link.download = `qrcode-${activeTab}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error("Download failed:", error);
-        alert("Download failed. Please try again.");
+    if (!element) {
+        alert("Error: QR Code element not found on screen.");
+        return;
     }
+
+    setTimeout(async () => {
+        try {
+            const canvas = await html2canvas(element, {
+                useCORS: true,      
+                allowTaint: true,   
+                scale: 3,           
+                backgroundColor: null, 
+                logging: false,
+                ignoreElements: (node) => node.tagName === 'BUTTON' 
+            });
+
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `qrcode-${activeTab}-${Date.now()}.png`; 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Download Error Details:", error);
+            alert(`Download Failed: ${error.message}`); 
+        }
+    }, 100);
   };
 
   return (
@@ -108,7 +124,7 @@ export default function QrPage() {
                     ))}
                 </div>
 
-                {/* 2. Input Fields (Dynamic) */}
+                {/* 2. Input Fields */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
                     <h3 className="font-bold text-gray-800">1. Enter Content</h3>
                     
@@ -167,16 +183,18 @@ export default function QrPage() {
                         </div>
                     </div>
 
-                    {/* Logo Upload */}
+                    {/* ✅ LOGO UPLOAD WITH LOADING EFFECT */}
                     <div>
                         <label className="block text-sm text-gray-600 mb-1">Center Logo</label>
                         <div className="flex items-center gap-3">
-                            <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 flex items-center gap-2 transition text-sm font-medium">
-                                <Upload size={16} /> Choose Image
-                                <input type="file" accept="image/*" onChange={handleIconUpload} className="hidden" />
+                            <label className={`cursor-pointer bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 flex items-center gap-2 transition text-sm font-medium ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                {uploading ? <Loader2 className="animate-spin text-indigo-600" size={18} /> : <Upload size={18} />}
+                                {uploading ? 'Uploading...' : 'Choose Image'}
+                                <input type="file" accept="image/*" onChange={handleIconUpload} className="hidden" disabled={uploading} />
                             </label>
-                            {icon && (
-                                <button onClick={() => setIcon(null)} className="text-red-500 hover:text-red-700 p-2">
+
+                            {icon && !uploading && (
+                                <button onClick={() => setIcon(null)} className="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-lg border border-red-100" title="Remove Logo">
                                     <Trash2 size={18} />
                                 </button>
                             )}
@@ -192,7 +210,7 @@ export default function QrPage() {
                         
                         {/* 🟢 THIS AREA WILL BE DOWNLOADED 🟢 */}
                         <div 
-                            ref={qrRef} 
+                            id="qr-download-area" 
                             className={`relative bg-white p-4 flex flex-col items-center justify-center transition-all duration-300 ${
                                 frame === 'simple' ? 'border-4 border-black rounded-lg p-6' : 
                                 frame === 'scanme' ? 'pt-12 pb-6 px-6 rounded-xl shadow-lg' : 'rounded-xl'

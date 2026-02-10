@@ -1,114 +1,201 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapPin, Globe, Server, Navigation, Search, Loader2 } from 'lucide-react';
+import { MapPin, Globe, Server, Navigation, Search, Loader2, Shield, Info } from 'lucide-react';
 
 export default function IpPage() {
   const [ip, setIp] = useState('');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Page load hote hi khud ki IP check karo
+  // ✅ Advanced Schema for IP Tool
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'NameDotify IP Lookup',
+    applicationCategory: 'NetworkTool',
+    operatingSystem: 'Any',
+    description: 'Free tool to check IP address location, ISP, and timezone.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    }
+  };
+
+  // Auto-fetch user's IP on load
   useEffect(() => {
-    checkIp('');
+    fetchIpDetails('');
   }, []);
 
-  const checkIp = async (customIp) => {
+  const fetchIpDetails = async (inputIp) => {
     setLoading(true);
-    setData(null);
+    setError('');
     try {
-      const url = customIp ? `/api/ip?ip=${customIp}` : `/api/ip`;
+      // Free API for demo (ipapi.co)
+      const url = inputIp ? `https://ipapi.co/${inputIp}/json/` : 'https://ipapi.co/json/';
       const response = await axios.get(url);
-      setData(response.data);
-      if (!customIp) setIp(response.data.query); // Input box me IP dikhao
+      
+      if (response.data && !response.data.error) {
+        setData(response.data);
+        if (!inputIp) setIp(response.data.ip);
+      } else {
+        setError('Invalid IP address or API limit reached.');
+      }
     } catch (err) {
-      console.error("Failed", err);
+      setError('Failed to fetch IP details. Try disabling AdBlock.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-50 min-h-screen py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center mb-10 mt-10">
-            <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-                <Globe className="text-blue-500 w-10 h-10" /> IP Address Lookup
-            </h1>
-            <p className="text-gray-600">Find your public IP address, location, and ISP details instantly.</p>
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">IP Address Lookup & Geolocation</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Find the geographical location, ISP, and timezone of any IP address instantly. 
+            See what websites know about your digital footprint.
+          </p>
         </div>
 
         {/* Search Box */}
-        <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex gap-2 mb-8 max-w-2xl mx-auto">
-            <input 
-                type="text" 
-                placeholder="Enter any IP (Leave empty for yours)" 
-                className="flex-1 p-3 outline-none text-lg font-mono text-gray-700"
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-4 text-gray-400" size={20} />
+              <input
+                type="text"
                 value={ip}
                 onChange={(e) => setIp(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && checkIp(ip)}
-            />
-            <button 
-                onClick={() => checkIp(ip)} 
-                disabled={loading}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2"
+                placeholder="Enter IP address (e.g., 8.8.8.8)"
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition font-mono"
+              />
+            </div>
+            <button
+              onClick={() => fetchIpDetails(ip)}
+              disabled={loading}
+              className="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition flex items-center justify-center gap-2 shadow-md disabled:opacity-70"
             >
-                {loading ? <Loader2 className="animate-spin" /> : <Search size={20} />}
-                Search
+              {loading ? <Loader2 className="animate-spin" /> : 'Trace IP'}
             </button>
+          </div>
         </div>
 
-        {/* Results Card */}
+        {error && (
+            <div className="bg-red-50 text-red-700 p-4 rounded-xl flex items-center gap-3 mb-6">
+                <Info size={20} /> {error}
+            </div>
+        )}
+
+        {/* Results Grid */}
         {data && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Top Banner with Map Background Effect */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white relative overflow-hidden">
-                    <div className="relative z-10">
-                        <p className="text-blue-100 text-sm font-bold uppercase tracking-wider mb-1">IP Address</p>
-                        <h2 className="text-4xl md:text-5xl font-mono font-bold tracking-tight">{data.query}</h2>
-                        <p className="mt-2 text-blue-100 flex items-center gap-2">
-                            <MapPin size={16} /> {data.city}, {data.regionName}, {data.country}
-                        </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Main Info Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-blue-50 rounded-full text-blue-600">
+                        <Globe size={32} />
                     </div>
-                    <Globe className="absolute -right-10 -bottom-10 text-white opacity-10 w-64 h-64" />
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">Target IP Address</p>
+                        <h2 className="text-3xl font-bold text-gray-900 font-mono">{data.ip}</h2>
+                    </div>
                 </div>
-
-                {/* Details Grid */}
-                <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    
-                    <div className="space-y-1">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                           <Server size={14}/> ISP (Internet Provider)
-                        </span>
-                        <p className="text-lg font-medium text-gray-800">{data.isp}</p>
-                        <p className="text-sm text-gray-500">{data.org}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-100">
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">City</p>
+                        <p className="font-semibold text-gray-800">{data.city}</p>
                     </div>
-
-                    <div className="space-y-1">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                           <Navigation size={14}/> Coordinates
-                        </span>
-                        <p className="text-lg font-medium text-gray-800">{data.lat}, {data.lon}</p>
-                        <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}`} 
-                            target="_blank"
-                            className="text-sm text-blue-600 hover:underline"
-                        >
-                            View on Google Maps
-                        </a>
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">Region</p>
+                        <p className="font-semibold text-gray-800">{data.region}</p>
                     </div>
-
-                    <div className="space-y-1">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                           <Globe size={14}/> Timezone
-                        </span>
-                        <p className="text-lg font-medium text-gray-800">{data.timezone}</p>
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">Country</p>
+                        <p className="font-semibold text-gray-800">{data.country_name}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">Timezone</p>
+                        <p className="font-semibold text-gray-800">{data.timezone}</p>
                     </div>
                 </div>
             </div>
+
+            {/* Network Details */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Server size={20} className="text-purple-500" /> ISP & Network
+                </h3>
+                <ul className="space-y-3">
+                    <li className="flex justify-between">
+                        <span className="text-gray-500">ISP Name</span>
+                        <span className="font-medium text-gray-900 text-right">{data.org}</span>
+                    </li>
+                    <li className="flex justify-between">
+                        <span className="text-gray-500">ASN</span>
+                        <span className="font-medium text-gray-900">{data.asn}</span>
+                    </li>
+                    <li className="flex justify-between">
+                        <span className="text-gray-500">Postal Code</span>
+                        <span className="font-medium text-gray-900">{data.postal}</span>
+                    </li>
+                </ul>
+            </div>
+
+            {/* Coordinates */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Navigation size={20} className="text-red-500" /> GPS Coordinates
+                </h3>
+                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl mb-4">
+                    <div>
+                        <p className="text-xs text-gray-400">Latitude</p>
+                        <p className="font-mono font-bold text-gray-800">{data.latitude}</p>
+                    </div>
+                    <div className="h-8 w-px bg-gray-200"></div>
+                    <div className="text-right">
+                        <p className="text-xs text-gray-400">Longitude</p>
+                        <p className="font-mono font-bold text-gray-800">{data.longitude}</p>
+                    </div>
+                </div>
+                <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${data.latitude},${data.longitude}`} 
+                    target="_blank"
+                    className="block w-full text-center py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium text-sm"
+                >
+                    View on Google Maps →
+                </a>
+            </div>
+          </div>
         )}
+
+        {/* ✅ Human Written SEO Content */}
+        <div className="mt-16 prose prose-blue max-w-none bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">What Does Your IP Address Reveal?</h2>
+            <p className="text-gray-600">
+                Every device connected to the internet has a unique identifier called an <strong>Internet Protocol (IP) address</strong>. 
+                Think of it as your digital home address. Websites, advertisers, and hackers can use this string of numbers to determine your:
+            </p>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-600">
+                <li className="flex items-center gap-2"><MapPin size={16} className="text-red-500"/> Approximate physical location (City/State)</li>
+                <li className="flex items-center gap-2"><Server size={16} className="text-purple-500"/> Internet Service Provider (ISP)</li>
+                <li className="flex items-center gap-2"><Shield size={16} className="text-green-500"/> Connection security status</li>
+            </ul>
+            
+            <h3 className="text-xl font-bold text-gray-900 mt-6">IPv4 vs IPv6: What's the Difference?</h3>
+            <p className="text-gray-600">
+                Most of the web still uses <strong>IPv4</strong> (e.g., <code>192.168.1.1</code>), which is running out of unique addresses. 
+                The new standard, <strong>IPv6</strong>, uses a complex alphanumeric format to ensure we never run out of addresses for future devices.
+                NameDotify supports lookup for both protocols.
+            </p>
+        </div>
       </div>
     </div>
   );

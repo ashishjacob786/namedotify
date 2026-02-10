@@ -65,6 +65,8 @@ export default function GeneratorPage() {
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
+      {/* Removed the element that caused the black strip */}
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

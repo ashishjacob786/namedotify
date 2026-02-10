@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { QRCode } from 'react-qrcode-logo'; // ✅ New Library
+import { QRCode } from 'react-qrcode-logo';
 import html2canvas from 'html2canvas';
 import { QrCode, Download, Link as LinkIcon, Palette, Upload, Trash2, Wifi, Mail, FileText, Smartphone, Loader2, Square, Circle, MousePointer2 } from 'lucide-react';
 
@@ -20,11 +20,9 @@ export default function QrPage() {
   const [uploading, setUploading] = useState(false);
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
-  
-  // ✅ Advanced Styling (Ab ye 100% kaam karega)
   const [qrStyle, setQrStyle] = useState('squares'); // 'squares' | 'dots' | 'fluid'
-  const [eyeRadius, setEyeRadius] = useState(0); // 0 - 20 (Corner roundness)
-  const [template, setTemplate] = useState('modern'); // classic, modern
+  const [eyeRadius, setEyeRadius] = useState(0); 
+  const [template, setTemplate] = useState('modern');
 
   // QR Value Logic
   const getQrValue = () => {
@@ -52,18 +50,28 @@ export default function QrPage() {
     }
   };
 
-  // ✅ ERROR-PROOF DOWNLOAD FUNCTION
+  // ✅ NUCLEAR FIX FOR DOWNLOAD ERROR
   const downloadQR = () => {
-    const element = document.getElementById('qr-capture-zone'); // Target ID
+    const element = document.getElementById('qr-capture-zone');
 
     if (!element) return;
 
-    // Use specific settings to avoid 'lab()' color errors
     html2canvas(element, {
         useCORS: true,
-        scale: 4, // Ultra HD
-        backgroundColor: null, // Transparent support
+        scale: 4, // Ultra HD Quality
+        backgroundColor: null,
         logging: false,
+        // 🔥 MAGIC FIX: Ye Global CSS ko clone se hata dega taaki 'lab()' error na aaye
+        onclone: (clonedDoc) => {
+            const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
+            styles.forEach(style => style.remove());
+            
+            // Clone wale element ko visible aur sahi font ensure karo
+            const cloneEl = clonedDoc.getElementById('qr-capture-zone');
+            if(cloneEl) {
+                cloneEl.style.fontFamily = 'Arial, sans-serif'; 
+            }
+        }
     }).then(canvas => {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
@@ -74,7 +82,7 @@ export default function QrPage() {
         document.body.removeChild(link);
     }).catch(err => {
         console.error("Download Error:", err);
-        alert("Oops! Try choosing a simpler background color.");
+        alert(`Download Failed: ${err.message}`);
     });
   };
 
@@ -200,8 +208,9 @@ export default function QrPage() {
                                 backgroundColor: template === 'modern' ? fgColor : 'transparent',
                                 padding: template === 'modern' ? '20px' : '0px',
                                 borderRadius: '20px',
-                                display: 'inline-block', // Important for canvas sizing
-                                textAlign: 'center'
+                                display: 'inline-block', 
+                                textAlign: 'center',
+                                fontFamily: 'sans-serif' // Explicit Font
                             }}
                         >
                             <div style={{
@@ -228,7 +237,7 @@ export default function QrPage() {
                                     fgColor={fgColor}
                                     bgColor={bgColor}
                                     qrStyle={qrStyle} // 'squares' | 'dots' | 'fluid'
-                                    eyeRadius={eyeRadius} // [10, 10, 10]
+                                    eyeRadius={eyeRadius} 
                                     logoImage={icon}
                                     logoWidth={60}
                                     logoHeight={60}

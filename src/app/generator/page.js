@@ -8,7 +8,6 @@ export default function GeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
-  // ✅ JSON-LD Schema for SEO
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -28,27 +27,18 @@ export default function GeneratorPage() {
     setLoading(true);
     setResults([]);
     
-    // Simulate AI "Thinking" for better UX
     setTimeout(() => {
         const term = keyword.toLowerCase().replace(/[^a-z0-9]/g, '');
-        
         const prefixes = ['get', 'the', 'my', 'try', 'go', 'super', 'pro', 'top', 'best', 'ultra', 'hyper', 'meta', 'smart', 'zen', 'pixel', 'atomic'];
         const suffixes = ['ify', 'ly', 'hub', 'box', 'lab', 'hq', 'spot', 'press', 'net', 'sys', 'io', 'zone', 'base', 'now', 'works', 'scape'];
         const mix = ['app', 'tech', 'soft', 'web', 'dev', 'cloud', 'ai', 'bot', 'data'];
 
         let generated = [];
-
-        // Strategy 1: Prefixes
         prefixes.forEach(p => generated.push(`${p}${term}.com`));
-
-        // Strategy 2: Suffixes
         suffixes.forEach(s => generated.push(`${term}${s}.com`));
-
-        // Strategy 3: Mix (Creative)
         mix.forEach(m => generated.push(`${term}${m}.com`));
-        mix.forEach(m => generated.push(`${m}${term}.com`)); // Reverse
+        mix.forEach(m => generated.push(`${m}${term}.com`));
 
-        // Randomize results slightly
         setResults(generated.sort(() => Math.random() - 0.5));
         setLoading(false);
     }, 600);
@@ -61,16 +51,16 @@ export default function GeneratorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
-      {/* Schema Injection */}
+    // ✅ FIX: Added 'pt-24' (Padding Top) to outer div instead of Margin inside. 
+    // This forces the gray background to cover the top gap.
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
+      
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
-      {/* Removed the element that caused the black strip */}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
-        <div className="text-center mb-12 mt-16">
+        {/* Header - Removed 'mt-16' because we used 'pt-24' in the parent wrapper */}
+        <div className="text-center mb-12">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wide mb-4">
                 <Sparkles size={12} className="mr-1" /> AI-Powered Naming
             </div>
@@ -110,22 +100,14 @@ export default function GeneratorPage() {
                 {results.map((name, index) => (
                     <div key={index} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-purple-200 transition group flex justify-between items-center relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition"></div>
-                        
-                        <span className="font-bold text-lg text-gray-700 group-hover:text-purple-700 transition tracking-tight">
-                            {name}
-                        </span>
-                        
+                        <span className="font-bold text-lg text-gray-700 group-hover:text-purple-700 transition tracking-tight">{name}</span>
                         <div className="flex gap-2">
-                            {/* Copy Button */}
                             <button 
                                 onClick={() => copyToClipboard(name, index)}
                                 className="p-2.5 text-gray-400 hover:text-purple-600 bg-gray-50 rounded-lg hover:bg-purple-50 transition"
-                                title="Copy Name"
                             >
                                 {copiedIndex === index ? <CheckCircle size={18} className="text-green-500"/> : <Copy size={18} />}
                             </button>
-                            
-                            {/* Buy Link */}
                             <a 
                                 href={`https://www.hostinger.com/web-hosting?domain=${name}`} 
                                 target="_blank"
@@ -139,59 +121,35 @@ export default function GeneratorPage() {
             </div>
         )}
 
-        {/* Empty State / Hint */}
+        {/* Empty State */}
         {results.length === 0 && !loading && (
             <div className="text-center text-gray-400 mb-20">
                 <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Wand2 className="w-10 h-10 text-purple-300" />
                 </div>
-                <p className="text-lg">Try keywords like <span className="text-purple-500 font-medium">"Digital"</span>, <span className="text-pink-500 font-medium">"Food"</span>, or <span className="text-indigo-500 font-medium">"Crypto"</span> to start the magic.</p>
+                <p className="text-lg">Try keywords like <span className="text-purple-500 font-medium">"Digital"</span>, <span className="text-pink-500 font-medium">"Food"</span>, or <span className="text-indigo-500 font-medium">"Crypto"</span>.</p>
             </div>
         )}
 
-        {/* ✅ Human Written SEO Content (New Section) */}
+        {/* SEO Content */}
         <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100 prose prose-purple max-w-none">
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">How to Choose the Perfect Business Name?</h2>
-            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose">
                 <div className="flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600">
-                        <Lightbulb size={24} />
-                    </div>
+                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600"><Lightbulb size={24} /></div>
                     <h3 className="text-xl font-bold text-gray-900">Keep it Simple</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                        The best names are easy to spell and pronounce. Avoid hyphens, numbers, or complicated spellings that might confuse your customers. Think "Google", "Uber", or "Zoom".
-                    </p>
+                    <p className="text-gray-600">Short names are easier to remember. Think "Uber" or "Zoom".</p>
                 </div>
-
                 <div className="flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                        <Target size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">Reflect Your Brand</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                        Your name should give a hint about what you do. Use our generator to mix industry keywords (like "Tech" or "Food") with catchy suffixes to find a balance.
-                    </p>
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600"><Target size={24} /></div>
+                    <h3 className="text-xl font-bold text-gray-900">Reflect Brand</h3>
+                    <p className="text-gray-600">Use keywords that hint at what you do (e.g., "Tech" or "Fresh").</p>
                 </div>
-
                 <div className="flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
-                        <Rocket size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">Check Availability</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                        A great name is useless if the domain is taken. Our tool checks for <strong>.com</strong> availability instantly so you can secure your digital real estate before someone else does.
-                    </p>
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600"><Rocket size={24} /></div>
+                    <h3 className="text-xl font-bold text-gray-900">Check .Com</h3>
+                    <p className="text-gray-600">Always secure the .com domain to build trust instantly.</p>
                 </div>
-            </div>
-
-            <div className="mt-12 pt-12 border-t border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Why use an AI Name Generator?</h3>
-                <p className="text-gray-600">
-                    Brainstorming is hard. You might come up with 5 ideas, but our AI can generate 50 ideas in milliseconds. 
-                    NameDotify uses smart linguistic patterns—combining prefixes, suffixes, and trending tech terms—to create 
-                    names that sound premium and professional without the expensive agency price tag.
-                </p>
             </div>
         </section>
 

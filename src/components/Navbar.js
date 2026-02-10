@@ -21,7 +21,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition">Home</Link>
             <Link href="/whois" className="text-gray-600 hover:text-blue-600 font-medium transition">Whois Lookup</Link>
-            <a href="#" className="text-gray-600 hover:text-blue-600 font-medium transition">DNS Checker</a>
+            <Link href="/dns" className="text-gray-600 hover:text-blue-600 font-medium transition">DNS Checker</Link>
             <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
               Get Started
             </button>

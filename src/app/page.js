@@ -2,49 +2,43 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { Search, Globe, Server, Shield, Activity, Calendar, Database, LayoutGrid, Zap, Loader2, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { Search, Globe, Server, Shield, Activity, Calendar, Database, LayoutGrid, Zap, Loader2, CheckCircle, XCircle, ArrowRight, Key, QrCode, MapPin, Lock } from 'lucide-react';
 
 export default function Home() {
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null); // null, 'available', or 'taken'
+  const [result, setResult] = useState(null);
 
   const checkDomain = async () => {
     if (!domain) return;
     setLoading(true);
     setResult(null);
-    
     try {
       const response = await axios.get(`/api/check?domain=${domain}`);
-      if (response.data.available) {
-        setResult('available');
-      } else {
-        setResult('taken');
-      }
+      setResult(response.data.available ? 'available' : 'taken');
     } catch (error) {
       console.error("Error checking domain", error);
-      alert("Something went wrong via checking.");
+      alert("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Saare Tools ki list aur unke Links
+  // ✅ Updated Tools List (All 10 Tools)
   const tools = [
-    { name: 'Domain Generator', icon: <Zap className="w-6 h-6 text-yellow-500" />, desc: 'Get AI-powered business names', link: '/generator' },
-    { name: 'Whois Lookup', icon: <Database className="w-6 h-6 text-red-500" />, desc: 'Find domain owner info', link: '/whois' },
-    { name: 'DNS Checker', icon: <Server className="w-6 h-6 text-purple-500" />, desc: 'Verify DNS records (A, MX)', link: '/dns' },
-    { name: 'SSL Checker', icon: <Shield className="w-6 h-6 text-emerald-500" />, desc: 'Check SSL certificate security', link: '/ssl' },
+    { name: 'AI Name Generator', icon: <Zap className="w-6 h-6 text-yellow-500" />, desc: 'Generate creative business names', link: '/generator' },
+    { name: 'Whois Lookup', icon: <Database className="w-6 h-6 text-blue-500" />, desc: 'Check domain ownership info', link: '/whois' },
+    { name: 'DNS Checker', icon: <Activity className="w-6 h-6 text-purple-500" />, desc: 'Analyze DNS records (A, MX, NS)', link: '/dns' },
+    { name: 'SSL Checker', icon: <Lock className="w-6 h-6 text-emerald-500" />, desc: 'Verify SSL security status', link: '/ssl' },
     { name: 'Hosting Checker', icon: <Server className="w-6 h-6 text-orange-500" />, desc: 'Find who hosts a website', link: '/hosting' },
-    { name: 'Domain Availability', icon: <Globe className="w-6 h-6 text-green-500" />, desc: 'Check if domain is free', link: '/' },
-    { name: 'Domain Age', icon: <Calendar className="w-6 h-6 text-blue-500" />, desc: 'Check domain lifespan', link: '/whois' },
-    { name: 'Status Checker', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Is website down?', link: '/status' },
-    { name: 'Price Comparison', icon: <LayoutGrid className="w-6 h-6 text-indigo-500" />, desc: 'Compare registrar prices', link: '#' },
+    { name: 'Server Status', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Check if a website is down', link: '/status' },
+    { name: 'IP Lookup', icon: <MapPin className="w-6 h-6 text-red-500" />, desc: 'Find IP location & details', link: '/ip' },
+    { name: 'QR Generator', icon: <QrCode className="w-6 h-6 text-indigo-500" />, desc: 'Create custom QR codes', link: '/qrcode' },
+    { name: 'Password Tool', icon: <Key className="w-6 h-6 text-teal-500" />, desc: 'Generate strong passwords', link: '/password' },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
-      
       {/* Hero Section */}
       <header className="max-w-5xl mx-auto text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900 leading-tight">
@@ -102,7 +96,7 @@ export default function Home() {
 
       {/* Tools Grid Section */}
       <section className="max-w-6xl mx-auto px-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Professional Web Tools</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">All Professional Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool, index) => (
             <Link key={index} href={tool.link} className="block group">
@@ -119,7 +113,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
     </div>
   );
 }

@@ -29,16 +29,16 @@ export default function Home() {
     }
   };
 
-  const tools = [
-    { name: 'Domain Price Comparison', icon: <LayoutGrid className="w-6 h-6 text-blue-500" />, desc: 'Compare prices across registrars' },
-    { name: 'Domain Availability', icon: <Globe className="w-6 h-6 text-green-500" />, desc: 'Check if domain is free' },
-    { name: 'AI Domain Suggestion', icon: <Zap className="w-6 h-6 text-yellow-500" />, desc: 'Get AI-powered names' },
-    { name: 'DNS Checker', icon: <Server className="w-6 h-6 text-purple-500" />, desc: 'Verify DNS propagation' },
-    { name: 'Whois Lookup', icon: <Database className="w-6 h-6 text-red-500" />, desc: 'Find domain owner info' },
-    { name: 'Domain Age', icon: <Calendar className="w-6 h-6 text-orange-500" />, desc: 'Check domain lifespan' },
-    { name: 'Hosting Checker', icon: <Server className="w-6 h-6 text-indigo-500" />, desc: 'Find who hosts a site' },
-    { name: 'SSL Checker', icon: <Shield className="w-6 h-6 text-emerald-500" />, desc: 'Verify SSL security' },
-    { name: 'Status Checker', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Is website down?' },
+const tools = [
+    { name: 'Domain Price Comparison', icon: <LayoutGrid ... />, desc: 'Compare prices...', link: '#' }, // Iska tool abhi nahi hai
+    { name: 'Domain Availability', icon: <Globe ... />, desc: 'Check if domain is free', link: '/' },
+    { name: 'AI Domain Generator', icon: <Zap ... />, desc: 'Get AI-powered names', link: '/generator' }, // Link Added
+    { name: 'DNS Checker', icon: <Server ... />, desc: 'Verify DNS propagation', link: '/dns' }, // Link Added
+    { name: 'Whois Lookup', icon: <Database ... />, desc: 'Find domain owner info', link: '/whois' }, // Link Added
+    { name: 'Domain Age', icon: <Calendar ... />, desc: 'Check domain lifespan', link: '/whois' }, // Same as whois
+    { name: 'Hosting Checker', icon: <Server ... />, desc: 'Find who hosts a site', link: '/hosting' }, // Link Added
+    { name: 'SSL Checker', icon: <Shield ... />, desc: 'Verify SSL security', link: '/ssl' }, // Link Added
+    { name: 'Status Checker', icon: <Activity ... />, desc: 'Is website down?', link: '/dns' },
   ];
 
   return (

@@ -38,7 +38,7 @@ export default function Home() {
     { name: 'Hosting Checker', icon: <Server className="w-6 h-6 text-orange-500" />, desc: 'Find who hosts a website', link: '/hosting' },
     { name: 'Domain Availability', icon: <Globe className="w-6 h-6 text-green-500" />, desc: 'Check if domain is free', link: '/' },
     { name: 'Domain Age', icon: <Calendar className="w-6 h-6 text-blue-500" />, desc: 'Check domain lifespan', link: '/whois' },
-    { name: 'Status Checker', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Is website down?', link: '/dns' },
+    { name: 'Status Checker', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Is website down?', link: '/status' },
     { name: 'Price Comparison', icon: <LayoutGrid className="w-6 h-6 text-indigo-500" />, desc: 'Compare registrar prices', link: '#' },
   ];
 

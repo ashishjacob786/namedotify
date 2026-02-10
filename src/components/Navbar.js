@@ -22,6 +22,7 @@ export default function Navbar() {
             <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition">Home</Link>
             <Link href="/whois" className="text-gray-600 hover:text-blue-600 font-medium transition">Whois Lookup</Link>
             <Link href="/dns" className="text-gray-600 hover:text-blue-600 font-medium transition">DNS Checker</Link>
+            <Link href="/ssl" className="text-gray-600 hover:text-blue-600 font-medium transition">SSL Checker</Link>
             <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
               Get Started
             </button>

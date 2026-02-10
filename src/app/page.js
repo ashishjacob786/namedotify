@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Search, Globe, Server, Shield, Activity, Calendar, Database, LayoutGrid, Zap, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Globe, Server, Shield, Activity, Calendar, Database, LayoutGrid, Zap, Loader2, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 
 export default function Home() {
   const [domain, setDomain] = useState('');
@@ -14,7 +15,6 @@ export default function Home() {
     setResult(null);
     
     try {
-      // हमारी बनाई हुई API को कॉल करें
       const response = await axios.get(`/api/check?domain=${domain}`);
       if (response.data.available) {
         setResult('available');
@@ -29,21 +29,22 @@ export default function Home() {
     }
   };
 
-const tools = [
-    { name: 'Domain Price Comparison', icon: <LayoutGrid ... />, desc: 'Compare prices...', link: '#' }, // Iska tool abhi nahi hai
-    { name: 'Domain Availability', icon: <Globe ... />, desc: 'Check if domain is free', link: '/' },
-    { name: 'AI Domain Generator', icon: <Zap ... />, desc: 'Get AI-powered names', link: '/generator' }, // Link Added
-    { name: 'DNS Checker', icon: <Server ... />, desc: 'Verify DNS propagation', link: '/dns' }, // Link Added
-    { name: 'Whois Lookup', icon: <Database ... />, desc: 'Find domain owner info', link: '/whois' }, // Link Added
-    { name: 'Domain Age', icon: <Calendar ... />, desc: 'Check domain lifespan', link: '/whois' }, // Same as whois
-    { name: 'Hosting Checker', icon: <Server ... />, desc: 'Find who hosts a site', link: '/hosting' }, // Link Added
-    { name: 'SSL Checker', icon: <Shield ... />, desc: 'Verify SSL security', link: '/ssl' }, // Link Added
-    { name: 'Status Checker', icon: <Activity ... />, desc: 'Is website down?', link: '/dns' },
+  // Saare Tools ki list aur unke Links
+  const tools = [
+    { name: 'Domain Generator', icon: <Zap className="w-6 h-6 text-yellow-500" />, desc: 'Get AI-powered business names', link: '/generator' },
+    { name: 'Whois Lookup', icon: <Database className="w-6 h-6 text-red-500" />, desc: 'Find domain owner info', link: '/whois' },
+    { name: 'DNS Checker', icon: <Server className="w-6 h-6 text-purple-500" />, desc: 'Verify DNS records (A, MX)', link: '/dns' },
+    { name: 'SSL Checker', icon: <Shield className="w-6 h-6 text-emerald-500" />, desc: 'Check SSL certificate security', link: '/ssl' },
+    { name: 'Hosting Checker', icon: <Server className="w-6 h-6 text-orange-500" />, desc: 'Find who hosts a website', link: '/hosting' },
+    { name: 'Domain Availability', icon: <Globe className="w-6 h-6 text-green-500" />, desc: 'Check if domain is free', link: '/' },
+    { name: 'Domain Age', icon: <Calendar className="w-6 h-6 text-blue-500" />, desc: 'Check domain lifespan', link: '/whois' },
+    { name: 'Status Checker', icon: <Activity className="w-6 h-6 text-pink-500" />, desc: 'Is website down?', link: '/dns' },
+    { name: 'Price Comparison', icon: <LayoutGrid className="w-6 h-6 text-indigo-500" />, desc: 'Compare registrar prices', link: '#' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
+      
       {/* Hero Section */}
       <header className="max-w-5xl mx-auto text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900 leading-tight">
@@ -86,33 +87,35 @@ const tools = [
               </div>
             </div>
             {result === 'available' && (
-              <a href={`https://www.hostinger.com/web-hosting?domain=${domain}`} target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 text-sm">
-                Buy Now
+              <a href={`https://www.hostinger.com/web-hosting?domain=${domain}`} target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 text-sm flex items-center gap-1">
+                Buy Now <ArrowRight size={14}/>
               </a>
             )}
             {result === 'taken' && (
-              <button className="bg-white border border-red-200 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-50 text-sm">
+              <Link href={`/whois?domain=${domain}`} className="bg-white border border-red-200 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-50 text-sm">
                 Who owns it?
-              </button>
+              </Link>
             )}
           </div>
         )}
       </header>
 
-      {/* Tools Grid */}
-      <section className="max-w-6xl mx-auto px-6 pb-24">
-        <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">More Professional Tools</h2>
+      {/* Tools Grid Section */}
+      <section className="max-w-6xl mx-auto px-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Professional Web Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-100 transition duration-200 cursor-pointer flex items-center gap-4 group">
-              <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition">
-                {tool.icon}
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition">{tool.name}</h3>
-                <p className="text-xs text-gray-500 mt-1">{tool.desc}</p>
-              </div>
-            </div>
+            <Link key={index} href={tool.link} className="block group">
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition duration-200 h-full flex items-center gap-4">
+                <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition">
+                    {tool.icon}
+                </div>
+                <div>
+                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition">{tool.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">{tool.desc}</p>
+                </div>
+                </div>
+            </Link>
           ))}
         </div>
       </section>

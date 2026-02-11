@@ -24,12 +24,11 @@ export default function WhoisPage() {
     }
   };
 
-  // 🎯 NEW: Function to calculate exact Domain Age
+  // 🎯 Function to calculate exact Domain Age (Years, Months, Days)
   const calculateDomainAge = (dateString) => {
     if (!dateString) return null;
     
     const creationDate = new Date(dateString);
-    // Check if the date is valid
     if (isNaN(creationDate.getTime())) return null;
 
     const today = new Date();
@@ -58,30 +57,40 @@ export default function WhoisPage() {
     return parts.length > 0 ? parts.join(', ') : 'Less than a day';
   };
 
+  // 🎯 Format Date to make it readable (e.g., "Sep 15, 1997")
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not Available';
+    try {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-US', options);
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   const lookupWhois = async () => {
-    if (!domain) return;
+    if (!domain.trim()) return;
     setLoading(true);
     setError('');
     setData(null);
 
     try {
-      // NOTE: Ensure you have your /api/whois route setup or use an external API here
-      const response = await axios.get(`/api/whois?domain=${domain}`);
+      const response = await axios.get(`/api/whois?domain=${encodeURIComponent(domain)}`);
       
       if(response.data.error) {
-        setError("Domain not found or private.");
+        setError(response.data.error);
       } else {
         setData(response.data);
       }
     } catch (err) {
-      setError('Failed to fetch data. Please check the domain name.');
+      setError('Failed to fetch data. Please check your network or the domain name.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    // ✅ FIX: Used 'pt-24' to prevent black strip issue
+    // ✅ FIX: 'pt-24' prevents the black strip issue
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
       
       {/* Schema Injection */}
@@ -108,7 +117,7 @@ export default function WhoisPage() {
             <div className="flex-1 relative">
                 <input 
                     type="text" 
-                    placeholder="Enter domain (e.g. google.com)" 
+                    placeholder="Enter domain (e.g. namedotify.com, example.net)" 
                     className="w-full h-full p-4 pl-6 outline-none text-lg rounded-xl bg-transparent"
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
@@ -143,12 +152,12 @@ export default function WhoisPage() {
                             <Globe className="text-blue-600" size={24} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">{domain}</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{data.domain || domain}</h2>
                             <p className="text-sm text-gray-500">Domain Information</p>
                         </div>
                     </div>
                     <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200">
-                        <CheckCircle size={16} className="mr-2" /> Active
+                        <CheckCircle size={16} className="mr-2" /> Registered
                     </span>
                 </div>
                 
@@ -156,14 +165,14 @@ export default function WhoisPage() {
                     {/* Key Info Cards */}
                     <div className="space-y-6">
                         
-                        {/* ✅ NEW: Domain Age Card */}
-                        {calculateDomainAge(data.creationDate || data.creationDateRaw) && (
+                        {/* Domain Age Card */}
+                        {calculateDomainAge(data.creationDate) && (
                             <div className="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
                                 <Hourglass className="w-6 h-6 text-teal-600 mt-1" />
                                 <div>
                                     <p className="text-sm font-medium text-teal-900 uppercase tracking-wide">Domain Age</p>
                                     <p className="font-bold text-lg text-gray-900">
-                                        {calculateDomainAge(data.creationDate || data.creationDateRaw)}
+                                        {calculateDomainAge(data.creationDate)}
                                     </p>
                                 </div>
                             </div>
@@ -173,7 +182,7 @@ export default function WhoisPage() {
                             <Calendar className="w-6 h-6 text-blue-600 mt-1" />
                             <div>
                                 <p className="text-sm font-medium text-blue-900 uppercase tracking-wide">Registered On</p>
-                                <p className="font-bold text-lg text-gray-900">{data.creationDate || data.creationDateRaw || 'Not Available'}</p>
+                                <p className="font-bold text-lg text-gray-900">{formatDate(data.creationDate)}</p>
                             </div>
                         </div>
                         
@@ -181,7 +190,7 @@ export default function WhoisPage() {
                             <Clock className="w-6 h-6 text-orange-600 mt-1" />
                             <div>
                                 <p className="text-sm font-medium text-orange-900 uppercase tracking-wide">Expires On</p>
-                                <p className="font-bold text-lg text-gray-900">{data.registryExpiryDate || data.expiryDate || 'Not Available'}</p>
+                                <p className="font-bold text-lg text-gray-900">{formatDate(data.expiryDate)}</p>
                             </div>
                         </div>
                         
@@ -189,7 +198,7 @@ export default function WhoisPage() {
                             <Shield className="w-6 h-6 text-purple-600 mt-1" />
                             <div>
                                 <p className="text-sm font-medium text-purple-900 uppercase tracking-wide">Registrar</p>
-                                <p className="font-bold text-lg text-gray-900">{data.registrar || 'Not Available'}</p>
+                                <p className="font-bold text-lg text-gray-900">{data.registrar}</p>
                             </div>
                         </div>
                     </div>
@@ -201,9 +210,9 @@ export default function WhoisPage() {
                                 <Server size={20} className="text-gray-500" /> Name Servers
                             </h3>
                             <ul className="space-y-2">
-                                {Array.isArray(data.nameServer) ? data.nameServer.map((ns, i) => (
-                                    <li key={i} className="flex items-center gap-2 text-gray-700 font-mono bg-white p-2 rounded border border-gray-200 text-sm">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                {Array.isArray(data.nameServer) && data.nameServer.length > 0 ? data.nameServer.map((ns, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-gray-700 font-mono bg-white p-2 rounded border border-gray-200 text-sm break-all">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                                         {ns}
                                     </li>
                                 )) : (
@@ -215,23 +224,25 @@ export default function WhoisPage() {
                 </div>
 
                 {/* Raw Data Toggle (Styled like Terminal) */}
-                <div className="border-t border-gray-200">
-                    <details className="group">
-                        <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-6 hover:bg-gray-50 transition">
-                            <span className="flex items-center gap-2 text-gray-700">
-                                <Database size={18}/> View Raw Whois Record
-                            </span>
-                            <span className="transition group-open:rotate-180">
-                                <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                            </span>
-                        </summary>
-                        <div className="text-neutral-600 px-6 pb-6 animate-in slide-in-from-top-2">
-                            <pre className="bg-gray-900 text-green-400 p-5 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed border border-gray-800 shadow-inner max-h-96">
-                                {JSON.stringify(data, null, 2)}
-                            </pre>
-                        </div>
-                    </details>
-                </div>
+                {data.raw && (
+                    <div className="border-t border-gray-200">
+                        <details className="group">
+                            <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-6 hover:bg-gray-50 transition">
+                                <span className="flex items-center gap-2 text-gray-700">
+                                    <Database size={18}/> View Raw Whois Record
+                                </span>
+                                <span className="transition group-open:rotate-180">
+                                    <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                                </span>
+                            </summary>
+                            <div className="text-neutral-600 px-6 pb-6 animate-in slide-in-from-top-2">
+                                <pre className="bg-gray-900 text-green-400 p-5 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed border border-gray-800 shadow-inner max-h-96 whitespace-pre-wrap">
+                                    {typeof data.raw === 'string' ? data.raw : JSON.stringify(data.raw, null, 2)}
+                                </pre>
+                            </div>
+                        </details>
+                    </div>
+                )}
             </div>
         )}
 

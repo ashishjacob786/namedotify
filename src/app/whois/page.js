@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Search, Database, Calendar, Server, Shield, Loader2, Globe, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Search, Database, Calendar, Server, Shield, Loader2, Globe, Clock, AlertCircle, CheckCircle, Hourglass } from 'lucide-react';
 
 export default function WhoisPage() {
   const [domain, setDomain] = useState('');
@@ -22,6 +22,40 @@ export default function WhoisPage() {
       price: '0',
       priceCurrency: 'USD'
     }
+  };
+
+  // 🎯 NEW: Function to calculate exact Domain Age
+  const calculateDomainAge = (dateString) => {
+    if (!dateString) return null;
+    
+    const creationDate = new Date(dateString);
+    // Check if the date is valid
+    if (isNaN(creationDate.getTime())) return null;
+
+    const today = new Date();
+    if (creationDate > today) return null;
+
+    let years = today.getFullYear() - creationDate.getFullYear();
+    let months = today.getMonth() - creationDate.getMonth();
+    let days = today.getDate() - creationDate.getDate();
+
+    if (days < 0) {
+      months -= 1;
+      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    const parts = [];
+    if (years > 0) parts.push(`${years} ${years === 1 ? 'Year' : 'Years'}`);
+    if (months > 0) parts.push(`${months} ${months === 1 ? 'Month' : 'Months'}`);
+    if (days > 0) parts.push(`${days} ${days === 1 ? 'Day' : 'Days'}`);
+
+    return parts.length > 0 ? parts.join(', ') : 'Less than a day';
   };
 
   const lookupWhois = async () => {
@@ -121,6 +155,20 @@ export default function WhoisPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                     {/* Key Info Cards */}
                     <div className="space-y-6">
+                        
+                        {/* ✅ NEW: Domain Age Card */}
+                        {calculateDomainAge(data.creationDate || data.creationDateRaw) && (
+                            <div className="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
+                                <Hourglass className="w-6 h-6 text-teal-600 mt-1" />
+                                <div>
+                                    <p className="text-sm font-medium text-teal-900 uppercase tracking-wide">Domain Age</p>
+                                    <p className="font-bold text-lg text-gray-900">
+                                        {calculateDomainAge(data.creationDate || data.creationDateRaw)}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
                             <Calendar className="w-6 h-6 text-blue-600 mt-1" />
                             <div>
@@ -128,6 +176,7 @@ export default function WhoisPage() {
                                 <p className="font-bold text-lg text-gray-900">{data.creationDate || data.creationDateRaw || 'Not Available'}</p>
                             </div>
                         </div>
+                        
                         <div className="flex items-start gap-4 p-4 bg-orange-50 rounded-xl border border-orange-100">
                             <Clock className="w-6 h-6 text-orange-600 mt-1" />
                             <div>
@@ -135,6 +184,7 @@ export default function WhoisPage() {
                                 <p className="font-bold text-lg text-gray-900">{data.registryExpiryDate || data.expiryDate || 'Not Available'}</p>
                             </div>
                         </div>
+                        
                         <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
                             <Shield className="w-6 h-6 text-purple-600 mt-1" />
                             <div>

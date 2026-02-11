@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import { Mail, Phone, Globe, MapPin, Copy, CheckCircle, User, Briefcase, Link as LinkIcon, Palette, Image as ImageIcon, BriefcaseBusiness, PenTool, LayoutTemplate } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Copy, CheckCircle, User, Briefcase, Link as LinkIcon, Palette, Image as ImageIcon, BriefcaseBusiness, PenTool, LayoutTemplate, Share2 } from 'lucide-react';
 
 export default function SignaturePage() {
   // Form States
@@ -15,9 +15,14 @@ export default function SignaturePage() {
   const [website, setWebsite] = useState('www.namedotify.com');
   const [address, setAddress] = useState('123 Innovation Drive, Tech City, NY 10001');
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200&h=200');
+  const [themeColor, setThemeColor] = useState('#2563eb'); // Default Blue
+  
+  // Social Links States
   const [linkedin, setLinkedin] = useState('https://linkedin.com');
   const [twitter, setTwitter] = useState('https://twitter.com');
-  const [themeColor, setThemeColor] = useState('#2563eb'); // Default Blue
+  const [instagram, setInstagram] = useState('https://instagram.com');
+  const [facebook, setFacebook] = useState('');
+  const [youtube, setYoutube] = useState('');
 
   const [copied, setCopied] = useState(false);
   const signatureRef = useRef(null);
@@ -29,7 +34,7 @@ export default function SignaturePage() {
     name: 'NameDotify Free Email Signature Generator',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
-    description: 'Create professional, HTML-optimized email signatures for Gmail, Outlook, and Apple Mail. No watermarks, completely free.',
+    description: 'Create professional, HTML-optimized email signatures for Gmail, Outlook, and Apple Mail with Social Links. No watermarks, completely free.',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -70,9 +75,13 @@ export default function SignaturePage() {
   };
 
   return (
-    // ✅ FIX: 'pt-24' added to prevent black strip
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
       
+      {/* ✅ SEO: Dynamic Title & Meta Tags injected directly for Client Component */}
+      <title>Free Email Signature Generator (No Watermarks) | NameDotify</title>
+      <meta name="description" content="Create a professional HTML email signature for Gmail, Outlook, and Apple Mail. Add your photo, logo, and social media links. 100% Free." />
+      <meta name="keywords" content="email signature generator, free email signature, gmail signature, html email signature, b2b signature tool" />
+
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
@@ -156,7 +165,7 @@ export default function SignaturePage() {
                     </div>
                 </div>
 
-                {/* Design & Links */}
+                {/* Design & Photo */}
                 <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                         <Palette className="text-blue-600" size={20} /> Design & Graphics
@@ -174,13 +183,34 @@ export default function SignaturePage() {
                                 <span className="font-mono text-gray-500 text-sm bg-gray-100 px-3 py-1 rounded-md">{themeColor}</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Social Links Form */}
+                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
+                        <Share2 className="text-blue-600" size={20} /> Social Media Links
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-600 mb-1">LinkedIn URL</label>
-                            <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" />
+                            <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://linkedin.com/in/..." />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-600 mb-1">Twitter URL</label>
-                            <input type="text" value={twitter} onChange={(e) => setTwitter(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" />
+                            <input type="text" value={twitter} onChange={(e) => setTwitter(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://twitter.com/..." />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Instagram URL</label>
+                            <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://instagram.com/..." />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Facebook URL</label>
+                            <input type="text" value={facebook} onChange={(e) => setFacebook(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://facebook.com/..." />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-600 mb-1">YouTube URL</label>
+                            <input type="text" value={youtube} onChange={(e) => setYoutube(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://youtube.com/..." />
                         </div>
                     </div>
                 </div>
@@ -270,10 +300,13 @@ export default function SignaturePage() {
                                                 </table>
 
                                                 {/* Social Icons (Simple Text Links for Max Compatibility) */}
-                                                {(linkedin || twitter) && (
-                                                    <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '10px' }}>
+                                                {(linkedin || twitter || instagram || facebook || youtube) && (
+                                                    <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                                         {linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: themeColor, fontSize: '12px', fontWeight: 'bold' }}>LinkedIn</a>}
                                                         {twitter && <a href={twitter} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: themeColor, fontSize: '12px', fontWeight: 'bold' }}>Twitter</a>}
+                                                        {instagram && <a href={instagram} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: themeColor, fontSize: '12px', fontWeight: 'bold' }}>Instagram</a>}
+                                                        {facebook && <a href={facebook} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: themeColor, fontSize: '12px', fontWeight: 'bold' }}>Facebook</a>}
+                                                        {youtube && <a href={youtube} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: themeColor, fontSize: '12px', fontWeight: 'bold' }}>YouTube</a>}
                                                     </div>
                                                 )}
                                             </td>

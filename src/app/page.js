@@ -50,7 +50,7 @@ export default function HomePage() {
       name: 'Business Name Generator', 
       icon: <Zap className="w-8 h-8 text-purple-600" />, 
       desc: 'AI-powered tool to generate creative brand names.', 
-      link: '/name-generator' 
+      link: '/generator' 
     },
     { 
       name: 'Whois Lookup', 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import { Mail, Phone, Globe, MapPin, Copy, CheckCircle, User, Briefcase, Link as LinkIcon, Palette, Image as ImageIcon, BriefcaseBusiness, PenTool, LayoutTemplate, Share2 } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Copy, CheckCircle, User, Briefcase, Link as LinkIcon, Palette, Image as ImageIcon, BriefcaseBusiness, PenTool, LayoutTemplate, Share2, HelpCircle } from 'lucide-react';
 
 export default function SignaturePage() {
   // Form States
@@ -27,22 +27,65 @@ export default function SignaturePage() {
   const [copied, setCopied] = useState(false);
   const signatureRef = useRef(null);
 
-  // ✅ Advanced JSON-LD Schema (B2B SaaS Tool)
+  // ✅ 1. Advanced JSON-LD Schema (SoftwareApp + Breadcrumbs + FAQ)
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'NameDotify Free Email Signature Generator',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    description: 'Create professional, HTML-optimized email signatures for Gmail, Outlook, and Apple Mail with Social Links. No watermarks, completely free.',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'USD'
-    }
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "NameDotify Email Signature Generator",
+        "operatingSystem": "Web",
+        "applicationCategory": "BusinessApplication",
+        "url": "https://namedotify.com/signature",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Create professional, HTML-optimized email signatures for Gmail, Outlook, and Apple Mail with Social Links. No watermarks."
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://namedotify.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Email Signature",
+            "item": "https://namedotify.com/signature"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I add this signature to Gmail?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Copy the generated signature, go to Gmail Settings > General > Signature, paste it there, and save changes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this signature work in Outlook?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, our HTML signatures are fully compatible with Microsoft Outlook, Apple Mail, Thunderbird, and Gmail."
+            }
+          }
+        ]
+      }
+    ]
   };
 
-  // Modern Rich Text Copy Logic (Preserves HTML for Gmail/Outlook)
+  // Modern Rich Text Copy Logic
   const copySignature = async () => {
     if (!signatureRef.current) return;
     
@@ -62,7 +105,7 @@ export default function SignaturePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
-      // Fallback for older browsers
+      // Fallback
       const range = document.createRange();
       range.selectNode(signatureRef.current);
       window.getSelection().removeAllRanges();
@@ -75,32 +118,38 @@ export default function SignaturePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
+    // ✅ UI: Consistent Padding (pt-28)
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-28">
       
-      {/* ✅ SEO: Dynamic Title & Meta Tags injected directly for Client Component */}
-      <title>Free Email Signature Generator (No Watermarks) | NameDotify</title>
-      <meta name="description" content="Create a professional HTML email signature for Gmail, Outlook, and Apple Mail. Add your photo, logo, and social media links. 100% Free." />
-      <meta name="keywords" content="email signature generator, free email signature, gmail signature, html email signature, b2b signature tool" />
+      {/* ✅ 2. Advanced SEO Tags */}
+      <title>Free Email Signature Generator for Gmail & Outlook | NameDotify.com</title>
+      <meta name="description" content="Create a professional HTML email signature in seconds. Add your photo, logo, and social icons. Compatible with Gmail, Outlook, Apple Mail. 100% Free." />
+      <meta name="keywords" content="email signature generator, free gmail signature, outlook signature template, html email signature, professional email footer" />
+      
+      {/* ✅ 3. Open Graph Tags */}
+      <meta property="og:title" content="Free Email Signature Generator | NameDotify.com" />
+      <meta property="og:description" content="Make your emails look professional with our free signature builder." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://namedotify.com/signature" />
 
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
-        <div className="text-center mb-12">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide mb-4">
-                <BriefcaseBusiness size={12} className="mr-1" /> Professional Tool
+        {/* --- HEADER --- */}
+        <header className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-200">
+                <BriefcaseBusiness size={14} className="mr-2" /> Professional Branding Tool
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900">
-                Pro Email Signature Generator
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-gray-900 leading-tight">
+                Email Signature <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Generator</span>
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
                 Create beautiful, corporate-ready email signatures in seconds. 
                 Works perfectly with <span className="font-bold text-gray-800">Gmail, Outlook, and Apple Mail</span>. 
-                <span className="text-blue-600 font-bold ml-1">Zero Watermarks.</span>
             </p>
-        </div>
+        </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
             
@@ -108,78 +157,78 @@ export default function SignaturePage() {
             <div className="lg:col-span-7 space-y-6">
                 
                 {/* Personal Info */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                         <User className="text-blue-600" size={20} /> Personal Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">First Name</label>
-                            <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">First Name</label>
+                            <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Last Name</label>
-                            <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
+                            <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Job Title</label>
-                            <input type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Job Title</label>
+                            <input type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Department</label>
-                            <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Department</label>
+                            <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                     </div>
                 </div>
 
                 {/* Company Info */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                         <Briefcase className="text-blue-600" size={20} /> Company Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Company Name</label>
-                            <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Company Name</label>
+                            <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Office Phone</label>
-                            <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Office Phone</label>
+                            <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Mobile Phone</label>
-                            <input type="text" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Mobile Phone</label>
+                            <input type="text" value={mobile} onChange={(e) => setMobile(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Email Address</label>
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
+                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Website URL</label>
-                            <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Website URL</label>
+                            <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Office Address</label>
-                            <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Office Address</label>
+                            <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500" />
                         </div>
                     </div>
                 </div>
 
                 {/* Design & Photo */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                         <Palette className="text-blue-600" size={20} /> Design & Graphics
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1 flex items-center gap-1"><ImageIcon size={14}/> Photo / Logo URL</label>
-                            <input type="text" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://..." />
-                            <p className="text-xs text-gray-400 mt-1">Must be a direct image link ending in .jpg or .png</p>
+                            <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-1"><ImageIcon size={14}/> Photo / Logo URL</label>
+                            <input type="text" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://..." />
+                            <p className="text-xs text-gray-400 mt-2 ml-1">Must be a direct link ending in .jpg or .png</p>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Theme Color</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Theme Color</label>
                             <div className="flex items-center gap-3">
-                                <input type="color" value={themeColor} onChange={(e) => setThemeColor(e.target.value)} className="w-12 h-12 rounded-lg border-0 cursor-pointer p-0" />
+                                <input type="color" value={themeColor} onChange={(e) => setThemeColor(e.target.value)} className="w-12 h-12 rounded-xl border-0 cursor-pointer p-0 shadow-sm" />
                                 <span className="font-mono text-gray-500 text-sm bg-gray-100 px-3 py-1 rounded-md">{themeColor}</span>
                             </div>
                         </div>
@@ -187,30 +236,30 @@ export default function SignaturePage() {
                 </div>
 
                 {/* Social Links Form */}
-                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
                     <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                         <Share2 className="text-blue-600" size={20} /> Social Media Links
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">LinkedIn URL</label>
-                            <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://linkedin.com/in/..." />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">LinkedIn URL</label>
+                            <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://linkedin.com/in/..." />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Twitter URL</label>
-                            <input type="text" value={twitter} onChange={(e) => setTwitter(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://twitter.com/..." />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Twitter URL</label>
+                            <input type="text" value={twitter} onChange={(e) => setTwitter(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://twitter.com/..." />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Instagram URL</label>
-                            <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://instagram.com/..." />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Instagram URL</label>
+                            <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://instagram.com/..." />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">Facebook URL</label>
-                            <input type="text" value={facebook} onChange={(e) => setFacebook(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://facebook.com/..." />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Facebook URL</label>
+                            <input type="text" value={facebook} onChange={(e) => setFacebook(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://facebook.com/..." />
                         </div>
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-600 mb-1">YouTube URL</label>
-                            <input type="text" value={youtube} onChange={(e) => setYoutube(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" placeholder="https://youtube.com/..." />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">YouTube URL</label>
+                            <input type="text" value={youtube} onChange={(e) => setYoutube(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition focus:border-blue-500 text-sm" placeholder="https://youtube.com/..." />
                         </div>
                     </div>
                 </div>
@@ -331,8 +380,8 @@ export default function SignaturePage() {
             </div>
         </div>
 
-        {/* ✅ High CPC Keyword Content (B2B SaaS Focus) */}
-        <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100 prose prose-blue max-w-none">
+        {/* --- SEO ARTICLE --- */}
+        <article className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100 prose prose-blue max-w-none">
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Why Every Professional Needs a Custom Email Signature?</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose">
@@ -340,7 +389,7 @@ export default function SignaturePage() {
                     <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4"><BriefcaseBusiness size={24}/></div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Build Corporate Trust</h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        An email without a signature looks like spam. A properly formatted HTML signature with your <strong>Company Logo</strong> and contact details instantly builds trust and authority with clients.
+                        An email without a signature looks like spam. A properly formatted HTML signature with your <strong>Company Logo</strong> and contact details instantly builds trust.
                     </p>
                 </div>
 
@@ -348,7 +397,7 @@ export default function SignaturePage() {
                     <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-4"><Globe size={24}/></div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Free Marketing Channel</h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        Think of your signature as a digital business card. By adding links to your <strong>Corporate Website</strong> and <strong>LinkedIn Profile</strong>, you turn every outbound email into a lead generation tool.
+                        Think of your signature as a digital business card. By adding links to your <strong>Website</strong> and <strong>LinkedIn</strong>, you turn every outbound email into a lead.
                     </p>
                 </div>
 
@@ -356,13 +405,15 @@ export default function SignaturePage() {
                     <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 mb-4"><PenTool size={24}/></div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Cross-Platform Compatibility</h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        Designing a signature that looks good on both mobile and desktop is hard. Our generator uses strictly coded <strong>HTML Tables</strong> to ensure it renders perfectly on Gmail, Outlook, and Apple Mail.
+                        Designing a signature that looks good on both mobile and desktop is hard. Our generator uses strictly coded <strong>HTML Tables</strong> to ensure it renders perfectly.
                     </p>
                 </div>
             </div>
 
             <div className="mt-12 p-8 bg-blue-50 rounded-2xl border border-blue-100">
-                <h3 className="text-2xl font-bold text-blue-900 mb-4">How to install your signature in Gmail?</h3>
+                <h3 className="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <HelpCircle size={24}/> How to install your signature in Gmail?
+                </h3>
                 <ol className="list-decimal pl-5 text-blue-800 space-y-2 font-medium">
                     <li>Fill out the form above with your professional details.</li>
                     <li>Click the massive <strong>"Copy Signature"</strong> button. (Do not highlight and copy manually).</li>
@@ -371,7 +422,7 @@ export default function SignaturePage() {
                     <li>Save changes at the bottom of the page. You're done!</li>
                 </ol>
             </div>
-        </section>
+        </article>
 
       </div>
     </div>

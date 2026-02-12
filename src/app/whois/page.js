@@ -9,22 +9,44 @@ export default function WhoisPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ✅ Advanced JSON-LD Schema for SEO
+  // ✅ 1. Advanced JSON-LD Schema (SoftwareApp & Breadcrumbs)
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'NameDotify Whois Lookup',
-    applicationCategory: 'UtilitiesApplication',
-    operatingSystem: 'Web',
-    description: 'Free tool to check domain ownership, registration date, expiry status, and nameservers instantly.',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'USD'
-    }
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "NameDotify Whois Lookup",
+        "operatingSystem": "Web",
+        "applicationCategory": "UtilitiesApplication",
+        "url": "https://namedotify.com/whois",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Free tool to check domain ownership, registration date, expiry status, and nameservers instantly."
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://namedotify.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Whois Lookup",
+            "item": "https://namedotify.com/whois"
+          }
+        ]
+      }
+    ]
   };
 
-  // 🎯 Function to calculate exact Domain Age (Years, Months, Days)
+  // 🎯 Function to calculate exact Domain Age
   const calculateDomainAge = (dateString) => {
     if (!dateString) return null;
     
@@ -32,7 +54,7 @@ export default function WhoisPage() {
     if (isNaN(creationDate.getTime())) return null;
 
     const today = new Date();
-    if (creationDate > today) return null; // Future date check
+    if (creationDate > today) return null; 
 
     let years = today.getFullYear() - creationDate.getFullYear();
     let months = today.getMonth() - creationDate.getMonth();
@@ -57,7 +79,7 @@ export default function WhoisPage() {
     return parts.length > 0 ? parts.join(', ') : 'Less than a day';
   };
 
-  // 🎯 Helper to format dates nicely (e.g., "Oct 5, 2023")
+  // 🎯 Helper to format dates
   const formatDate = (dateString) => {
     if (!dateString) return 'Not Available';
     try {
@@ -80,14 +102,12 @@ export default function WhoisPage() {
     try {
       const response = await axios.get(`/api/whois?domain=${encodeURIComponent(domain)}`);
       
-      // Check if backend returned a logical error
       if(response.data.error) {
         setError(response.data.error);
       } else {
         setData(response.data);
       }
     } catch (err) {
-      // Check if Axios returned a network error or server error
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
       } else {
@@ -99,35 +119,46 @@ export default function WhoisPage() {
   };
 
   return (
-    // ✅ FIX: 'pt-24' prevents the black strip issue under the navbar
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
+    // ✅ UI: Consistent Padding
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-28">
       
+      {/* ✅ 2. Advanced SEO Tags */}
+      <title>Free Whois Lookup Tool - Check Domain Age & Owner | NameDotify.com</title>
+      <meta name="description" content="Instantly check domain ownership, registration age, expiry date, and nameservers. Free Whois Lookup tool for .com, .net, .io & more." />
+      <meta name="keywords" content="whois lookup, domain age checker, domain owner search, check domain expiry, website owner info" />
+      
+      {/* ✅ 3. Open Graph Tags */}
+      <meta property="og:title" content="Free Whois Lookup Tool | NameDotify.com" />
+      <meta property="og:description" content="Find out who owns a domain and when it expires. Free lookup tool." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://namedotify.com/whois" />
+
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
-        <div className="text-center mb-12">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide mb-4">
-                <Database size={12} className="mr-1" /> Domain Research
+        {/* --- HEADER --- */}
+        <header className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-200">
+                <Database size={14} className="mr-2" /> Domain Research Tool
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900">
-                Whois Lookup Tool
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-gray-900 leading-tight">
+                Whois <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Lookup</span>
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                Find out who owns a domain, when it expires, and where it's hosted. 
-                Essential for buying domains and checking competitors.
+            <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                Find out <span className="font-bold text-gray-800">who owns a domain</span>, exactly when it was registered, 
+                and when it expires. Essential for domain investors and developers.
             </p>
-        </div>
+        </header>
 
-        {/* Search Box */}
-        <div className="max-w-3xl mx-auto bg-white p-3 rounded-2xl shadow-xl shadow-blue-100 border border-blue-50 flex flex-col sm:flex-row gap-3 mb-12 relative z-10">
+        {/* --- SEARCH BOX --- */}
+        <div className="max-w-3xl mx-auto bg-white p-4 rounded-3xl shadow-xl shadow-blue-100/50 border border-blue-100 flex flex-col sm:flex-row gap-3 mb-16 relative z-10">
             <div className="flex-1 relative">
                 <input 
                     type="text" 
                     placeholder="Enter domain (e.g. namedotify.com, google.org)" 
-                    className="w-full h-full p-4 pl-6 outline-none text-lg rounded-xl bg-transparent"
+                    className="w-full h-full p-4 pl-6 outline-none text-lg rounded-2xl bg-gray-50 focus:bg-white transition border border-transparent focus:border-blue-200"
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && lookupWhois()}
@@ -136,37 +167,37 @@ export default function WhoisPage() {
             <button 
                 onClick={lookupWhois} 
                 disabled={loading}
-                className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 text-lg disabled:opacity-70 shadow-lg shadow-blue-200"
+                className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 text-lg disabled:opacity-70 shadow-lg shadow-blue-200 transform active:scale-95"
             >
                 {loading ? <Loader2 className="animate-spin" /> : <Search size={20} />}
                 Lookup
             </button>
         </div>
 
-        {/* Error State */}
+        {/* --- ERROR STATE --- */}
         {error && (
-            <div className="max-w-3xl mx-auto bg-red-50 text-red-700 p-4 rounded-xl border border-red-100 flex items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-2">
+            <div className="max-w-3xl mx-auto bg-red-50 text-red-700 p-4 rounded-2xl border border-red-100 flex items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-2">
                 <AlertCircle size={20} /> {error}
             </div>
         )}
 
-        {/* Results Area */}
+        {/* --- RESULTS AREA --- */}
         {data && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                 
                 {/* Result Header */}
-                <div className="bg-gray-50 p-6 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white rounded-lg border border-gray-200">
-                            <Globe className="text-blue-600" size={24} />
+                <div className="bg-gray-50 p-6 md:p-8 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                            <Globe className="text-blue-600" size={28} />
                         </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">{data.domain || domain}</h2>
-                            <p className="text-sm text-gray-500">Domain Information</p>
+                        <div className="text-center md:text-left">
+                            <h2 className="text-2xl font-bold text-gray-900">{data.domain || domain}</h2>
+                            <p className="text-sm text-gray-500 font-medium">Domain Registered</p>
                         </div>
                     </div>
                     <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200">
-                        <CheckCircle size={16} className="mr-2" /> Registered
+                        <CheckCircle size={16} className="mr-2" /> Active Status
                     </span>
                 </div>
                 
@@ -174,39 +205,39 @@ export default function WhoisPage() {
                     {/* Key Info Cards */}
                     <div className="space-y-6">
                         
-                        {/* ✅ Domain Age Card */}
+                        {/* Domain Age Card */}
                         {calculateDomainAge(data.creationDate) && (
-                            <div className="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
+                            <div className="flex items-start gap-4 p-5 bg-teal-50 rounded-2xl border border-teal-100 transition hover:shadow-md">
                                 <Hourglass className="w-6 h-6 text-teal-600 mt-1" />
                                 <div>
-                                    <p className="text-sm font-medium text-teal-900 uppercase tracking-wide">Domain Age</p>
-                                    <p className="font-bold text-lg text-gray-900">
+                                    <p className="text-xs font-bold text-teal-800 uppercase tracking-wider mb-1">Domain Age</p>
+                                    <p className="font-extrabold text-xl text-gray-900 leading-tight">
                                         {calculateDomainAge(data.creationDate)}
                                     </p>
                                 </div>
                             </div>
                         )}
 
-                        <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div className="flex items-start gap-4 p-5 bg-blue-50 rounded-2xl border border-blue-100 transition hover:shadow-md">
                             <Calendar className="w-6 h-6 text-blue-600 mt-1" />
                             <div>
-                                <p className="text-sm font-medium text-blue-900 uppercase tracking-wide">Registered On</p>
+                                <p className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">Registered On</p>
                                 <p className="font-bold text-lg text-gray-900">{formatDate(data.creationDate)}</p>
                             </div>
                         </div>
                         
-                        <div className="flex items-start gap-4 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <div className="flex items-start gap-4 p-5 bg-orange-50 rounded-2xl border border-orange-100 transition hover:shadow-md">
                             <Clock className="w-6 h-6 text-orange-600 mt-1" />
                             <div>
-                                <p className="text-sm font-medium text-orange-900 uppercase tracking-wide">Expires On</p>
+                                <p className="text-xs font-bold text-orange-800 uppercase tracking-wider mb-1">Expires On</p>
                                 <p className="font-bold text-lg text-gray-900">{formatDate(data.expiryDate)}</p>
                             </div>
                         </div>
                         
-                        <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                        <div className="flex items-start gap-4 p-5 bg-purple-50 rounded-2xl border border-purple-100 transition hover:shadow-md">
                             <Shield className="w-6 h-6 text-purple-600 mt-1" />
                             <div>
-                                <p className="text-sm font-medium text-purple-900 uppercase tracking-wide">Registrar</p>
+                                <p className="text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">Registrar</p>
                                 <p className="font-bold text-lg text-gray-900">{data.registrar || 'Unknown'}</p>
                             </div>
                         </div>
@@ -214,14 +245,14 @@ export default function WhoisPage() {
 
                     {/* Name Servers & Technical */}
                     <div className="space-y-6">
-                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 h-full">
-                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 h-full">
+                            <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
                                 <Server size={20} className="text-gray-500" /> Name Servers
                             </h3>
-                            <ul className="space-y-2">
+                            <ul className="space-y-3">
                                 {Array.isArray(data.nameServer) && data.nameServer.length > 0 ? data.nameServer.map((ns, i) => (
-                                    <li key={i} className="flex items-center gap-2 text-gray-700 font-mono bg-white p-2 rounded border border-gray-200 text-sm break-all">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 font-mono bg-white p-3 rounded-xl border border-gray-200 text-sm break-all shadow-sm">
+                                        <div className="w-2.5 h-2.5 bg-green-500 rounded-full flex-shrink-0"></div>
                                         {ns}
                                     </li>
                                 )) : (
@@ -232,20 +263,18 @@ export default function WhoisPage() {
                     </div>
                 </div>
 
-                {/* Raw Data Toggle (Styled like Terminal) */}
+                {/* Raw Data Toggle */}
                 {data.raw && (
                     <div className="border-t border-gray-200">
                         <details className="group">
-                            <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-6 hover:bg-gray-50 transition">
-                                <span className="flex items-center gap-2 text-gray-700">
+                            <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 hover:bg-gray-50 transition text-gray-700">
+                                <span className="flex items-center gap-2">
                                     <Database size={18}/> View Raw Whois Record
                                 </span>
-                                <span className="transition group-open:rotate-180">
-                                    <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                                </span>
+                                <span className="transition group-open:rotate-180">▼</span>
                             </summary>
                             <div className="text-neutral-600 px-6 pb-6 animate-in slide-in-from-top-2">
-                                <pre className="bg-gray-900 text-green-400 p-5 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed border border-gray-800 shadow-inner max-h-96 whitespace-pre-wrap">
+                                <pre className="bg-gray-900 text-green-400 p-6 rounded-2xl text-xs overflow-x-auto font-mono leading-relaxed border border-gray-800 shadow-inner max-h-96 whitespace-pre-wrap">
                                     {typeof data.raw === 'object' ? JSON.stringify(data.raw, null, 2) : data.raw}
                                 </pre>
                             </div>
@@ -255,47 +284,47 @@ export default function WhoisPage() {
             </div>
         )}
 
-        {/* ✅ Human Written SEO Content */}
+        {/* --- SEO ARTICLE --- */}
         <section className="mt-20 bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100 prose prose-blue max-w-none">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Why Perform a Whois Lookup?</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Why Perform a Whois Lookup?</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 not-prose mt-10">
-                <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 not-prose">
+                <div className="p-6 bg-blue-50 rounded-2xl">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm">1</span>
+                        <span className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 text-sm font-bold shadow-sm">1</span>
                         Verify Domain Ownership
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                         Before buying a website or entering a business deal, use Whois to confirm the registered owner. 
                         This helps avoid scams and ensures you are dealing with the legitimate rights holder.
                     </p>
                 </div>
-                <div>
+                <div className="p-6 bg-orange-50 rounded-2xl">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-sm">2</span>
+                        <span className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-orange-600 text-sm font-bold shadow-sm">2</span>
                         Check Expiry Dates
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                         A domain's expiry date is public information. Use this tool to monitor when a domain you want might become available (drop catching) 
                         or to ensure your own domains are renewed on time.
                     </p>
                 </div>
-                <div>
+                <div className="p-6 bg-purple-50 rounded-2xl">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm">3</span>
+                        <span className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-600 text-sm font-bold shadow-sm">3</span>
                         Identify Registrars
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                         Forgot where you bought your domain? The Whois record clearly lists the "Registrar" (e.g., GoDaddy, Namecheap), 
                         so you know where to log in to manage your DNS settings.
                     </p>
                 </div>
-                <div>
+                <div className="p-6 bg-green-50 rounded-2xl">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">4</span>
+                        <span className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-600 text-sm font-bold shadow-sm">4</span>
                         Investigate Cybercrime
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                         Cybersecurity researchers use Whois data to track down the sources of spam, phishing attacks, and malware. 
                         Finding the network provider helps in reporting abuse.
                     </p>

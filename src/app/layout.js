@@ -1,17 +1,17 @@
 import './globals.css';
-import Navbar from '../components/Navbar'; // Path check kar lena agar '@/components/Navbar' ho
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 // ✅ GLOBAL SEO METADATA
 export const metadata = {
-  metadataBase: new URL('https://namedotify.com'), // Base URL set karna zaruri hai
+  metadataBase: new URL('https://namedotify.com'),
   title: {
     default: 'NameDotify - Free Domain & SEO Tools',
-    template: '%s | NameDotify', // Har page ke title ke piche "| NameDotify" apne aap lag jayega
+    template: '%s | NameDotify',
   },
   description: 'NameDotify offers free tools for domain search, AI name generation, DNS lookup, Whois, IP checking, and QR code creation.',
   
-  // ✅ GOOGLE SEARCH CONSOLE VERIFICATION CODE
+  // ✅ GOOGLE SEARCH CONSOLE VERIFICATION
   verification: {
     google: 'ZLV90YEZ61_KAe8AiWyOiZjrhoRlv6QZgTEXz21jt-A',
   },
@@ -31,9 +31,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      {/* bg-gray-50 को body पर सेट किया है ताकि पूरी स्क्रीन का बेस कलर एक जैसा रहे */}
       <body className="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-grow pt-24 pb-10"> {/* Padding added for fixed navbar */}
+        {/* flex-grow का इस्तेमाल किया है ताकि footer हमेशा नीचे रहे, और padding हटा दी है */}
+        <main className="flex-grow">
           {children}
         </main>
         <Footer />

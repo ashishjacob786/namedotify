@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import lookup from 'whois-json';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -8,34 +9,45 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Domain is required' }, { status: 400 });
   }
 
-  // Clean the domain (remove http://, https://, www., and trailing slashes)
+  // Clean domain input
   const cleanDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].toLowerCase();
 
   try {
-    // NetworkCalc is a robust, free API that handles all TLDs (.com, .net, .org, .in) seamlessly
-    const res = await fetch(`https://networkcalc.com/api/whois/${cleanDomain}`, {
-        next: { revalidate: 3600 } // Cache for 1 hour to prevent rate limiting
-    });
-    
-    const data = await res.json();
+    // ✅ Direct Server-to-Server Lookup (No External API Limit)
+    const result = await lookup(cleanDomain);
 
-    // Check if domain is not registered or API failed
-    if (data.status !== 'OK' || !data.whois || !data.whois.registered) {
-      return NextResponse.json({ error: 'Domain not found, unregistered, or data is hidden by privacy protection.' });
+    // If result is empty or error
+    if (!result || Object.keys(result).length === 0) {
+      return NextResponse.json({ error: 'Domain not found or registry connection failed.' }, { status: 404 });
     }
 
-    // Standardize the response so the frontend always gets the exact same keys
+    // 🔄 DATA NORMALIZATION (हर TLD अलग key देता है, हम उसे यहाँ फिक्स करेंगे)
+    // .com uses 'creationDate', .org uses 'creationDate', others use 'created'
+    const created = result.creationDate || result.created || result.creation_date || result.registered || null;
+    const expires = result.registryExpiryDate || result.expiryDate || result.expires || result.expiration_date || null;
+    const registrar = result.registrar || result.registrarName || result.sponsoringRegistrar || 'Unknown';
+    
+    // Nameservers can be an array or a string, fix it
+    let ns = [];
+    if (Array.isArray(result.nameServer)) {
+        ns = result.nameServer;
+    } else if (typeof result.nameServer === 'string') {
+        ns = result.nameServer.split(' ').filter(n => n);
+    } else if (result.nserver) {
+        ns = [result.nserver]; // Some TLDs use 'nserver'
+    }
+
     return NextResponse.json({
       domain: cleanDomain,
-      registrar: data.whois.registrar || 'Not Available',
-      creationDate: data.whois.created_date || null,
-      expiryDate: data.whois.expires_date || null,
-      nameServer: data.whois.nameservers || [],
-      raw: data.whois.raw || data.whois // Sending full raw text/object
+      registrar: registrar,
+      creationDate: created,
+      expiryDate: expires,
+      nameServer: ns.map(n => n.toLowerCase()), // Lowercase for consistency
+      raw: result // Full raw object for the "View Raw" section
     });
 
   } catch (error) {
-    console.error("Whois API Error:", error);
-    return NextResponse.json({ error: 'Failed to fetch WHOIS data. Server timeout.' }, { status: 500 });
+    console.error("Whois Lookup Error:", error);
+    return NextResponse.json({ error: 'Internal Server Error: Could not connect to Whois server.' }, { status: 500 });
   }
 }

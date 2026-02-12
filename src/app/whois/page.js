@@ -9,7 +9,7 @@ export default function WhoisPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ✅ Advanced JSON-LD Schema
+  // ✅ Advanced JSON-LD Schema for SEO
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -32,7 +32,7 @@ export default function WhoisPage() {
     if (isNaN(creationDate.getTime())) return null;
 
     const today = new Date();
-    if (creationDate > today) return null;
+    if (creationDate > today) return null; // Future date check
 
     let years = today.getFullYear() - creationDate.getFullYear();
     let months = today.getMonth() - creationDate.getMonth();
@@ -57,12 +57,15 @@ export default function WhoisPage() {
     return parts.length > 0 ? parts.join(', ') : 'Less than a day';
   };
 
-  // 🎯 Format Date to make it readable (e.g., "Sep 15, 1997")
+  // 🎯 Helper to format dates nicely (e.g., "Oct 5, 2023")
   const formatDate = (dateString) => {
     if (!dateString) return 'Not Available';
     try {
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString('en-US', options);
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     } catch (e) {
       return dateString;
     }
@@ -77,20 +80,26 @@ export default function WhoisPage() {
     try {
       const response = await axios.get(`/api/whois?domain=${encodeURIComponent(domain)}`);
       
+      // Check if backend returned a logical error
       if(response.data.error) {
         setError(response.data.error);
       } else {
         setData(response.data);
       }
     } catch (err) {
-      setError('Failed to fetch data. Please check your network or the domain name.');
+      // Check if Axios returned a network error or server error
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('Network Error: Could not connect to the server. Please check your internet connection.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    // ✅ FIX: 'pt-24' prevents the black strip issue
+    // ✅ FIX: 'pt-24' prevents the black strip issue under the navbar
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-24">
       
       {/* Schema Injection */}
@@ -117,7 +126,7 @@ export default function WhoisPage() {
             <div className="flex-1 relative">
                 <input 
                     type="text" 
-                    placeholder="Enter domain (e.g. namedotify.com, example.net)" 
+                    placeholder="Enter domain (e.g. namedotify.com, google.org)" 
                     className="w-full h-full p-4 pl-6 outline-none text-lg rounded-xl bg-transparent"
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
@@ -136,7 +145,7 @@ export default function WhoisPage() {
 
         {/* Error State */}
         {error && (
-            <div className="max-w-3xl mx-auto bg-red-50 text-red-700 p-4 rounded-xl border border-red-100 flex items-center gap-3 mb-8">
+            <div className="max-w-3xl mx-auto bg-red-50 text-red-700 p-4 rounded-xl border border-red-100 flex items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-2">
                 <AlertCircle size={20} /> {error}
             </div>
         )}
@@ -165,7 +174,7 @@ export default function WhoisPage() {
                     {/* Key Info Cards */}
                     <div className="space-y-6">
                         
-                        {/* Domain Age Card */}
+                        {/* ✅ Domain Age Card */}
                         {calculateDomainAge(data.creationDate) && (
                             <div className="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
                                 <Hourglass className="w-6 h-6 text-teal-600 mt-1" />
@@ -198,7 +207,7 @@ export default function WhoisPage() {
                             <Shield className="w-6 h-6 text-purple-600 mt-1" />
                             <div>
                                 <p className="text-sm font-medium text-purple-900 uppercase tracking-wide">Registrar</p>
-                                <p className="font-bold text-lg text-gray-900">{data.registrar}</p>
+                                <p className="font-bold text-lg text-gray-900">{data.registrar || 'Unknown'}</p>
                             </div>
                         </div>
                     </div>
@@ -237,7 +246,7 @@ export default function WhoisPage() {
                             </summary>
                             <div className="text-neutral-600 px-6 pb-6 animate-in slide-in-from-top-2">
                                 <pre className="bg-gray-900 text-green-400 p-5 rounded-xl text-xs overflow-x-auto font-mono leading-relaxed border border-gray-800 shadow-inner max-h-96 whitespace-pre-wrap">
-                                    {typeof data.raw === 'string' ? data.raw : JSON.stringify(data.raw, null, 2)}
+                                    {typeof data.raw === 'object' ? JSON.stringify(data.raw, null, 2) : data.raw}
                                 </pre>
                             </div>
                         </details>

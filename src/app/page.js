@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, CheckCircle, XCircle, ArrowRight, QrCode, Mail, TrendingUp, Cpu } from 'lucide-react';
+import { Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, Key, Type, Wifi } from 'lucide-react';
 
 export default function HomePage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
 
-  // ✅ Advanced JSON-LD Schema (WebSite & SoftwareApp)
+  // ✅ Advanced JSON-LD Schema (WebSite)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -21,9 +21,7 @@ export default function HomePage() {
     }
   };
 
-  // ✅ Domain Search Logic (Simulation for Homepage Demo)
-  // Note: For real bulk checking, you would need a specific API. 
-  // This simulates the experience for the user.
+  // ✅ Domain Search Simulation
   const tlds = ['.com', '.net', '.org', '.io', '.co', '.ai'];
 
   const checkDomain = async () => {
@@ -31,59 +29,88 @@ export default function HomePage() {
     setLoading(true);
     setResults([]);
 
-    // Simulate network delay for "Real" feel
     setTimeout(() => {
         const cleanKeyword = input.replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
         const domainsToCheck = input.includes('.') ? [input] : tlds.map(tld => `${cleanKeyword}${tld}`);
         
         const mockResults = domainsToCheck.map(domain => ({
             domain,
-            status: Math.random() > 0.4 ? 'available' : 'taken', // Simulated availability
-            price: Math.floor(Math.random() * 20) + 9 // Simulated price
+            status: Math.random() > 0.4 ? 'available' : 'taken',
+            price: Math.floor(Math.random() * 20) + 9 
         }));
 
         setResults(mockResults);
         setLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
-  // ✅ Updated Tools List (Linked to pages we created)
+  // ✅ ALL 11 TOOLS LIST (Added Fonts, SSL, IP, Hosting, etc.)
   const tools = [
     { 
       name: 'Business Name Generator', 
       icon: <Zap className="w-8 h-8 text-purple-600" />, 
-      desc: 'AI-powered tool to generate catchy brand names and check availability.', 
+      desc: 'AI-powered tool to generate creative brand names.', 
       link: '/name-generator' 
     },
     { 
       name: 'Whois Lookup', 
       icon: <Database className="w-8 h-8 text-blue-600" />, 
-      desc: 'Check domain ownership, registration age, and expiry dates.', 
+      desc: 'Check domain ownership, age, and expiry dates.', 
       link: '/whois' 
-    },
-    { 
-      name: 'Email Signature', 
-      icon: <Mail className="w-8 h-8 text-pink-600" />, 
-      desc: 'Create professional HTML email signatures for Gmail & Outlook.', 
-      link: '/signature' 
     },
     { 
       name: 'DNS Record Checker', 
       icon: <Globe className="w-8 h-8 text-green-600" />, 
-      desc: 'Verify A, MX, CNAME records and check global propagation.', 
+      desc: 'Verify A, MX, CNAME records and propagation.', 
       link: '/dns' 
     },
     { 
       name: 'Pro QR Studio', 
       icon: <QrCode className="w-8 h-8 text-orange-600" />, 
-      desc: 'Generate custom QR codes for Wi-Fi, URLs, and vCards.', 
+      desc: 'Generate custom QR codes for Wi-Fi, URLs & vCards.', 
       link: '/qrcode' 
     },
     { 
-      name: 'Domain Pricing', 
-      icon: <TrendingUp className="w-8 h-8 text-indigo-600" />, 
-      desc: 'Compare registration prices across GoDaddy, Namecheap & more.', 
-      link: '/pricing' 
+      name: 'Email Signature', 
+      icon: <Mail className="w-8 h-8 text-pink-600" />, 
+      desc: 'Create professional HTML email signatures for Gmail.', 
+      link: '/signature' 
+    },
+    { 
+      name: 'IP Address Lookup', 
+      icon: <MapPin className="w-8 h-8 text-red-600" />, 
+      desc: 'Find geolocation, ISP, and city of any IP address.', 
+      link: '/ip' 
+    },
+    { 
+      name: 'SSL Checker', 
+      icon: <Lock className="w-8 h-8 text-emerald-600" />, 
+      desc: 'Verify SSL certificate validity and security issues.', 
+      link: '/ssl' 
+    },
+    { 
+      name: 'Secure Password Gen', 
+      icon: <Key className="w-8 h-8 text-teal-600" />, 
+      desc: 'Generate strong, uncrackable passwords instantly.', 
+      link: '/password' 
+    },
+    { 
+      name: 'Hosting Checker', 
+      icon: <Server className="w-8 h-8 text-indigo-600" />, 
+      desc: 'Discover which hosting provider a website is using.', 
+      link: '/hosting' 
+    },
+    { 
+      name: 'Server Status', 
+      icon: <Wifi className="w-8 h-8 text-cyan-600" />, 
+      desc: 'Check if a website is down or online in real-time.', 
+      link: '/status' 
+    },
+    { 
+      name: 'Fancy Fonts Generator', 
+      icon: <Type className="w-8 h-8 text-fuchsia-600" />, 
+      desc: 'Generate stylish text for Instagram & Bio.', 
+      link: 'https://namedotify.com/fonts-generator' // ✅ External Link Added
     },
   ];
 
@@ -91,9 +118,9 @@ export default function HomePage() {
     // ✅ FIX: 'pt-28' added to prevent Navbar overlap
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-28">
       
-      {/* SEO Title & Meta for Client Component */}
-      <title>NameDotify | Best Free Tools for Webmasters & Startups</title>
-      <meta name="description" content="NameDotify offers free SEO and webmaster tools including Whois Lookup, Business Name Generator, DNS Checker, and Email Signature Creator." />
+      {/* Client SEO Tags */}
+      <title>NameDotify | Free Webmaster Tools, Whois, DNS & More</title>
+      <meta name="description" content="Access 10+ free webmaster tools: Whois Lookup, AI Name Generator, DNS Checker, QR Code Creator, and more." />
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -102,21 +129,21 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <div className="text-center max-w-4xl mx-auto">
           
-          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100 animate-in fade-in slide-in-from-top-4">
-            <Cpu size={14} className="mr-2" /> All-in-One Webmaster Toolkit
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100">
+            <Activity size={14} className="mr-2" /> All-in-One Webmaster Toolkit
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight animate-in fade-in slide-in-from-bottom-2">
-            Launch Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Online Empire.</span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">
+            Everything you need to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Grow Online.</span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-4">
-            From finding the perfect <strong>Domain Name</strong> to analyzing <strong>DNS Records</strong>. 
-            Professional tools for founders and developers, 100% free.
+          <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+            Search <strong>Domains</strong>, generate <strong>Brand Names</strong>, or analyze <strong>DNS Records</strong>. 
+            Professional tools for founders, 100% free.
           </p>
 
           {/* SEARCH BAR */}
-          <div className="relative max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-6 group">
+          <div className="relative max-w-2xl mx-auto mb-12 group">
             <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
               <Search className="h-6 w-6 text-gray-400 group-focus-within:text-blue-500 transition" />
             </div>
@@ -193,7 +220,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- TOOLS GRID SECTION --- */}
+      {/* --- ALL TOOLS GRID SECTION --- */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Free Tools</h2>

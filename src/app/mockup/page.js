@@ -5,61 +5,57 @@ import download from 'downloadjs';
 import {
   Download, Upload, Image as ImageIcon,
   Smartphone, Tablet, Monitor, Laptop,
-  Palette, Maximize, Rotate3D, X,
-  ZoomIn, StretchHorizontal, Type, Link as LinkIcon
+  Palette, Rotate3D, X, ChevronDown, ChevronUp,
+  Move, ZoomIn, Layout, Type, RefreshCw
 } from 'lucide-react';
 
-// --- CONSTANTS & PRESETS ---
+// --- CONSTANTS ---
 const GRADIENTS = [
   'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
   'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%)',
-  'conic-gradient(at center top, rgb(134, 239, 172), rgb(59, 130, 246), rgb(147, 51, 234))',
+  'linear-gradient(to top, #96fbc4 0%, #f9f586 100%)',
+  'linear-gradient(to top, #c471f5 0%, #fa71cd 100%)',
+  'linear-gradient(to right, #f83600 0%, #f9d423 100%)',
+  'conic-gradient(from 180deg at 50% 50%, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)',
+  '#ffffff',
   'transparent'
 ];
 
 export default function MockupStudio() {
 
-  // --- STATE MANAGEMENT ---
-  // Main Image Content
+  // --- STATE ---
   const [image, setImage] = useState(null);
-  const [imageScale, setImageScale] = useState(100); // 50% to 150%
-  const [imageFit, setImageFit] = useState('cover'); // 'cover' or 'contain'
+  
+  // Image Adjustments
+  const [imgZoom, setImgZoom] = useState(100);
+  const [imgPos, setImgPos] = useState({ x: 0, y: 0 });
+  const [imgFit, setImgFit] = useState('cover');
 
-  // Background Styles
-  const [bgType, setBgType] = useState('preset'); // 'preset', 'customGrad', 'customImg'
-  const [backgroundStyle, setBackgroundStyle] = useState(GRADIENTS[1]);
-  const [customGradColors, setCustomGradColors] = useState(['#FF3CAC', '#784BA0']);
-  const [customBgImage, setCustomBgImage] = useState(null);
-
-  // Frame & Layout
-  const [padding, setPadding] = useState(64);
-  const [borderRadius, setBorderRadius] = useState(16);
+  // Frame Settings
+  const [frameType, setFrameType] = useState('macos-dark'); // macos-dark, macos-light, win, iphone, tablet, none
+  const [frameScale, setFrameScale] = useState(100); // Resize the device itself
+  const [urlText, setUrlText] = useState('namedotify.com');
   const [shadow, setShadow] = useState('shadow-2xl');
-  const [frameType, setFrameType] = useState('macos-dark'); // macos-dark/light, win, iphone, tablet, none
-  const [tilt, setTilt] = useState({ x: 0, y: 0 }); // 3D Tilt
-  const [urlText, setUrlText] = useState('namedotify.com'); // Editable URL
+  const [borderRadius, setBorderRadius] = useState(16);
 
+  // Background & Layout
+  const [bgStyle, setBgStyle] = useState(GRADIENTS[1]);
+  const [padding, setPadding] = useState(80);
+  const [tilt, setTilt] = useState({ x: 0, y: 0, rotate: 0 });
+
+  // UI State
   const [loading, setLoading] = useState(false);
+  const [openSection, setOpenSection] = useState('device'); // 'device', 'content', 'background', '3d'
 
   const mockupRef = useRef(null);
   const fileInputRef = useRef(null);
-  const bgFileInputRef = useRef(null);
-
-  // --- EFFECTS ---
-  // Update background when custom colors change
-  useEffect(() => {
-    if (bgType === 'customGrad') {
-      setBackgroundStyle(`linear-gradient(135deg, ${customGradColors[0]}, ${customGradColors[1]})`);
-    }
-  }, [customGradColors, bgType]);
 
   // --- HANDLERS ---
-  const handleImageUpload = (e, targetState) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => targetState(e.target.result);
+      reader.onload = (e) => setImage(e.target.result);
       reader.readAsDataURL(file);
     }
   };
@@ -67,183 +63,151 @@ export default function MockupStudio() {
   const handleDownload = async (format) => {
     if (!mockupRef.current) return;
     setLoading(true);
-    // Temporary disable tilt for cleaner capture if needed, but usually works fine.
-    // const currentTilt = tilt; setTilt({x:0,y:0});
+    // Temporary reset tilt/scale logic if needed for cleaner capture, 
+    // but usually creating a clone or capturing as-is works best for 3D.
+    // We capture as is to keep the 3D effect.
     setTimeout(async () => {
         try {
-            const scale = 2; // Retina quality
+            const scale = 2; 
             const dataUrl = format === 'png'
-              ? await toPng(mockupRef.current, { pixelRatio: scale })
+              ? await toPng(mockupRef.current, { pixelRatio: scale, width: mockupRef.current.offsetWidth, height: mockupRef.current.offsetHeight })
               : await toJpeg(mockupRef.current, { quality: 0.95, pixelRatio: scale });
             download(dataUrl, `namedotify-mockup.${format}`);
           } catch (err) {
             console.error(err);
-            alert('Error generating image. Please try again.');
+            alert('Error. Please try again or reduce tilt.');
           } finally {
             setLoading(false);
-            // setTilt(currentTilt);
           }
-    }, 100); // Small delay for state updates
+    }, 100);
   };
 
+  // Toggle Accordion
+  const toggleSection = (section) => {
+      setOpenSection(openSection === section ? null : section);
+  }
 
-  // Helper to get dynamic styles for different frames
-  const getFrameStyles = () => {
-      let styles = {
-          borderRadius: `${borderRadius}px`,
-          border: 'none',
-          aspectRatio: 'auto'
-      };
-
-      switch(frameType) {
-          case 'iphone':
-              styles.borderRadius = '40px';
-              styles.border = '14px solid #1f2937'; // Dark bezel
-              styles.aspectRatio = '9 / 19.5'; // Phone ratio
-              break;
-          case 'tablet':
-              styles.borderRadius = '24px';
-              styles.border = '12px solid #1f2937';
-              styles.aspectRatio = '4 / 3'; // Tablet ratio
-              break;
-          case 'none':
-               styles.borderRadius = `${borderRadius}px`;
-               styles.boxShadow = 'none';
-               break;
-          default: // Browser windows
-              styles.borderRadius = `${borderRadius}px`;
-              break;
+  // Helper for Frame Styles
+  const getDeviceStyle = () => {
+      const base = { transition: 'all 0.3s ease' };
+      if (frameType === 'iphone') {
+          return { ...base, borderRadius: '40px', border: '12px solid #1f2937', aspectRatio: '9/19.5', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' };
       }
-      return styles;
+      if (frameType === 'tablet') {
+          return { ...base, borderRadius: '24px', border: '12px solid #1f2937', aspectRatio: '4/3', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' };
+      }
+      // Browsers
+      return { ...base, borderRadius: `${borderRadius}px`, width: '100%', minHeight: '100%', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' };
   };
 
-  const frameStyles = getFrameStyles();
-  const isBrowser = frameType.includes('macos') || frameType === 'win';
-  const isMobile = frameType === 'iphone' || frameType === 'tablet';
-
+  const isBrowser = ['macos-dark', 'macos-light', 'win'].includes(frameType);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-32 pt-28">
-
-      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* --- HEADER --- */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pt-28 pb-20">
+      
+      <div className="max-w-[1800px] mx-auto px-4 lg:px-8">
+        
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-                    Advanced <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Mockup Studio</span>
-                </h1>
-                <p className="text-gray-500 text-sm mt-1">Create professional 3D device mockups.</p>
+                <h1 className="text-3xl font-extrabold text-gray-900">Mockup Studio <span className="text-blue-600 text-lg align-top">PRO</span></h1>
             </div>
-
             <div className="flex gap-3">
-                <button
-                  onClick={() => fileInputRef.current.click()}
-                  className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm"
-                >
-                    <Upload size={18}/> <span className="hidden sm:inline">Upload Screenshot</span>
-                </button>
-                <input type="file" ref={fileInputRef} onChange={(e) => handleImageUpload(e, setImage)} className="hidden" accept="image/*" />
-
-                <button
+                 <button 
                   onClick={() => handleDownload('png')}
                   disabled={loading}
-                  className="bg-gray-900 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-800 transition shadow-lg shadow-gray-300"
+                  className="bg-gray-900 hover:bg-black text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95"
                 >
-                    {loading ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div> : <Download size={18}/>}
-                    Download PNG
+                    {loading ? <RefreshCw className="animate-spin" size={18}/> : <Download size={18}/>}
+                    Download
                 </button>
             </div>
         </div>
 
-        {/* --- MAIN WORKSPACE --- */}
-        <div className="flex flex-col lg:flex-row gap-8 items-start h-auto lg:h-[calc(100vh-220px)]">
-
-            {/* 1. PREVIEW CANVAS (Left) */}
-            <div className="w-full lg:flex-1 bg-gray-200 rounded-3xl border border-gray-300 shadow-inner overflow-hidden relative flex items-center justify-center min-h-[500px] h-full p-4 lg:p-8 checkerboard-bg group">
-
-                {/* The Capture Area */}
-                <div
+        {/* WORKSPACE */}
+        <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-180px)] min-h-[600px]">
+            
+            {/* LEFT: CANVAS (Preview) */}
+            <div className="flex-1 bg-[#e5e5e5] rounded-3xl border border-gray-300 relative overflow-hidden flex items-center justify-center p-4 checkerboard-bg">
+                
+                {/* 3D Context Wrapper */}
+                <div 
                     ref={mockupRef}
-                    className="relative transition-all duration-300 ease-out origin-center flex items-center justify-center overflow-hidden"
-                    style={{
-                        // Logic for background style vs image
-                        background: bgType === 'customImg' && customBgImage ? `url(${customBgImage}) center/cover no-repeat` : backgroundStyle,
+                    className="relative flex items-center justify-center overflow-hidden transition-colors duration-300"
+                    style={{ 
+                        background: bgStyle.includes('url') ? `url(${bgStyle}) center/cover` : bgStyle,
                         padding: `${padding}px`,
-                        minWidth: isMobile ? 'auto' : '800px', // Adjust min width based on device
-                        minHeight: '600px'
+                        minWidth: '800px', // Forces High Res Capture area
+                        minHeight: '600px',
                     }}
                 >
-                    {/* The 3D Wrapper */}
-                    <div
-                        className="transition-transform duration-300 ease-out"
-                        style={{
-                            transform: `perspective(1500px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                            height: isMobile ? '100%' : 'auto' // Important for mobile frames to fill height
+                    {/* Tilt/Rotate Wrapper */}
+                    <div 
+                        style={{ 
+                            transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) rotateZ(${tilt.rotate}deg) scale(${frameScale/100})`,
+                            transition: 'transform 0.1s ease-out',
+                            width: frameType === 'iphone' ? '300px' : (frameType === 'tablet' ? '500px' : '700px'),
+                            // height: 'auto'
                         }}
                     >
-                        {/* THE DEVICE FRAME */}
-                        <div
-                            className={`relative bg-white transition-all duration-300 overflow-hidden flex flex-col ${frameType === 'none' ? '' : shadow}`}
-                            style={{
-                                ...frameStyles,
-                                height: isMobile ? '100%' : 'auto', // Ensure frame fills height for phones/tablets
-                            }}
+                        {/* DEVICE FRAME */}
+                        <div 
+                            className={`relative bg-white overflow-hidden ${frameType === 'none' ? '' : 'bg-white'}`}
+                            style={getDeviceStyle()}
                         >
-
-                            {/* Browser Headers (Editable URL) */}
-                            {isBrowser && (
-                                <div className={`h-10 px-4 flex items-center gap-3 border-b relative z-10 ${frameType.includes('dark') ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
-                                    {frameType.includes('macos') && (
-                                        <div className="flex gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                                            <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                            <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                                        </div>
-                                    )}
-                                    {frameType === 'win' && (
-                                        <div className="flex gap-4 ml-auto order-last">
-                                             <div className="w-3 h-3 border-b-2 border-gray-400"></div>
-                                             <div className="w-3 h-3 border border-gray-400"></div>
-                                             <X size={14} className="text-gray-500"/>
-                                        </div>
-                                    )}
-                                    {/* Editable URL Bar */}
-                                    <div className="flex-1 flex justify-center">
-                                        <div className={`flex items-center gap-2 px-3 py-1 rounded-md text-xs w-full max-w-[300px] ${frameType.includes('dark') ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-600 shadow-sm'}`}>
-                                             {frameType.includes('macos') && <LinkIcon size={10} className="opacity-50"/>}
-                                             <input
-                                                 type="text"
-                                                 value={urlText}
-                                                 onChange={(e) => setUrlText(e.target.value)}
-                                                 className="bg-transparent outline-none text-center w-full"
-                                                 spellCheck="false"
-                                             />
-                                        </div>
+                            
+                            {/* --- HEADER BARS --- */}
+                            
+                            {/* macOS Header */}
+                            {frameType.includes('macos') && (
+                                <div className={`h-9 px-4 flex items-center gap-3 border-b ${frameType.includes('dark') ? 'bg-[#1e1e1e] border-[#333]' : 'bg-white border-gray-100'}`}>
+                                    <div className="flex gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
+                                        <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
+                                        <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
+                                    </div>
+                                    <div className={`flex-1 text-center text-xs font-medium py-1 rounded ${frameType.includes('dark') ? 'bg-[#2a2a2a] text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
+                                        {urlText}
                                     </div>
                                 </div>
                             )}
 
-                            {/* IMAGE CONTENT CONTAINER */}
-                            <div className="relative bg-white flex-1 overflow-hidden w-full h-full flex items-center justify-center">
+                            {/* Windows Header */}
+                            {frameType === 'win' && (
+                                <div className="h-9 flex justify-between items-center bg-[#f3f3f3] border-b border-gray-300">
+                                    <div className="px-4 text-xs text-gray-500">{urlText}</div>
+                                    <div className="flex h-full">
+                                        <div className="w-10 flex items-center justify-center hover:bg-gray-200"><div className="w-2.5 h-[1px] bg-black"></div></div>
+                                        <div className="w-10 flex items-center justify-center hover:bg-gray-200"><div className="w-2.5 h-2.5 border border-black"></div></div>
+                                        <div className="w-10 flex items-center justify-center hover:bg-red-500 hover:text-white"><X size={14}/></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* iPhone Dynamic Island */}
+                            {frameType === 'iphone' && (
+                                <div className="absolute top-0 left-0 w-full flex justify-center pt-3 z-20 pointer-events-none">
+                                    <div className="w-24 h-7 bg-black rounded-full"></div>
+                                </div>
+                            )}
+
+                            {/* --- IMAGE AREA --- */}
+                            <div className={`relative overflow-hidden w-full h-full bg-white flex items-center justify-center ${frameType === 'iphone' ? 'aspect-[9/19.5]' : (frameType === 'tablet' ? 'aspect-[4/3]' : 'aspect-video')}`}>
                                 {image ? (
-                                    <img
-                                        src={image}
-                                        alt="Screenshot"
-                                        className="transition-transform duration-300"
-                                        style={{
-                                            transform: `scale(${imageScale / 100})`,
-                                            objectFit: imageFit,
-                                            width: '100%',
-                                            height: isMobile ? '100%' : 'auto', // Mobile needs 100% height fit
-                                            borderRadius: (frameType === 'none' && !isBrowser) ? `${borderRadius}px` : '0'
+                                    <img 
+                                        src={image} 
+                                        alt="preview"
+                                        style={{ 
+                                            width: '100%', 
+                                            height: '100%', 
+                                            objectFit: imgFit,
+                                            transform: `scale(${imgZoom/100}) translate(${imgPos.x}px, ${imgPos.y}px)`,
                                         }}
                                     />
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center text-gray-400 p-10 text-center">
-                                        <ImageIcon size={48} className="mb-2 opacity-50"/>
-                                        <span className="font-medium">Upload Screenshot</span>
-                                        <span className="text-xs mt-1">Image will appear here</span>
+                                    <div className="flex flex-col items-center justify-center text-gray-300 p-10 cursor-pointer hover:text-gray-400 transition" onClick={() => fileInputRef.current.click()}>
+                                        <ImageIcon size={48} className="mb-2"/>
+                                        <span className="font-bold text-sm">Upload Image</span>
                                     </div>
                                 )}
                             </div>
@@ -252,230 +216,186 @@ export default function MockupStudio() {
                     </div>
                 </div>
 
-                 {/* Reset View Button */}
-                 <button
-                  onClick={() => setTilt({x:0, y:0})}
-                  className="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full shadow text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition"
-                  title="Reset 3D View"
-                >
-                    <Maximize size={20} />
+                {/* Reset View FAB */}
+                <button onClick={() => { setTilt({x:0, y:0, rotate:0}); setFrameScale(100); }} className="absolute bottom-6 right-6 bg-white p-3 rounded-full shadow-xl hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition" title="Reset View">
+                    <RefreshCw size={20}/>
                 </button>
             </div>
 
-            {/* 2. CONTROLS (Right - Scrollable) */}
-            <div className="w-full lg:w-[340px] flex flex-col gap-5 bg-white p-5 rounded-3xl border border-gray-200 shadow-sm h-full overflow-y-auto custom-scrollbar">
-
-                {/* --- SECTION 1: FRAME & DEVICE --- */}
-                <div>
-                    <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2 mb-3 uppercase tracking-wider">
-                        <Monitor size={16}/> Device Frame
-                    </h3>
-                     <div className="grid grid-cols-3 gap-2">
-                        <button onClick={() => setFrameType('macos-dark')} className={`control-btn ${frameType === 'macos-dark' ? 'active' : ''}`}><Laptop size={14}/> macOS Dark</button>
-                        <button onClick={() => setFrameType('macos-light')} className={`control-btn ${frameType === 'macos-light' ? 'active' : ''}`}><Laptop size={14}/> macOS Light</button>
-                        <button onClick={() => setFrameType('win')} className={`control-btn ${frameType === 'win' ? 'active' : ''}`}><Monitor size={14}/> Windows</button>
-                        <button onClick={() => setFrameType('iphone')} className={`control-btn ${frameType === 'iphone' ? 'active' : ''}`}><Smartphone size={14}/> iPhone</button>
-                        <button onClick={() => setFrameType('tablet')} className={`control-btn ${frameType === 'tablet' ? 'active' : ''}`}><Tablet size={14}/> Tablet</button>
-                        <button onClick={() => setFrameType('none')} className={`control-btn ${frameType === 'none' ? 'active-red' : ''}`}><X size={14}/> None</button>
-                    </div>
-                </div>
-
-                 <hr className="border-gray-100"/>
-
-                {/* --- SECTION 2: IMAGE ADJUSTMENTS --- */}
-                <div className={!image ? 'opacity-50 pointer-events-none' : ''}>
-                     <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2 mb-3 uppercase tracking-wider">
-                        <ZoomIn size={16}/> Image Scaling
-                    </h3>
-                    {/* Scale Slider */}
-                    <div className="mb-4">
-                         <div className="flex justify-between mb-1">
-                            <label className="text-xs font-bold text-gray-500">Zoom</label>
-                            <span className="text-xs text-gray-400">{imageScale}%</span>
-                        </div>
-                        <input
-                            type="range" min="50" max="150" value={imageScale}
-                            onChange={(e) => setImageScale(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
-                    </div>
-                    {/* Fit Mode Buttons */}
-                     <div className="flex gap-2">
-                         <button onClick={() => setImageFit('cover')} className={`flex-1 py-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${imageFit === 'cover' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'hover:bg-gray-50'}`}><StretchHorizontal size={14}/> Cover (Fill)</button>
-                         <button onClick={() => setImageFit('contain')} className={`flex-1 py-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 ${imageFit === 'contain' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'hover:bg-gray-50'}`}><Maximize size={14}/> Contain (Fit)</button>
-                    </div>
-                </div>
-
-                <hr className="border-gray-100"/>
-
-                {/* --- SECTION 3: BACKGROUNDS --- */}
-                <div>
-                    <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2 mb-3 uppercase tracking-wider">
-                        <Palette size={16}/> Background
-                    </h3>
-
-                    {/* Type Toggles */}
-                    <div className="flex bg-gray-100 p-1 rounded-lg mb-4">
-                        <button onClick={() => setBgType('preset')} className={`flex-1 text-xs py-1.5 font-bold rounded-md transition ${bgType === 'preset' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Presets</button>
-                        <button onClick={() => setBgType('customGrad')} className={`flex-1 text-xs py-1.5 font-bold rounded-md transition ${bgType === 'customGrad' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Gradient</button>
-                        <button onClick={() => setBgType('customImg')} className={`flex-1 text-xs py-1.5 font-bold rounded-md transition ${bgType === 'customImg' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Image</button>
+            {/* RIGHT: CONTROLS (Sidebar) */}
+            <div className="w-full lg:w-[360px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col overflow-hidden h-full">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+                    
+                    {/* 1. DEVICE TYPE */}
+                    <div className="border border-gray-100 rounded-xl overflow-hidden">
+                        <button onClick={() => toggleSection('device')} className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition">
+                            <span className="font-bold text-sm text-gray-700 flex items-center gap-2"><Monitor size={16}/> Device Type</span>
+                            {openSection === 'device' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                        </button>
+                        
+                        {openSection === 'device' && (
+                            <div className="p-4 bg-white space-y-4">
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['macos-dark', 'macos-light', 'win', 'iphone', 'tablet', 'none'].map((type) => (
+                                        <button 
+                                            key={type}
+                                            onClick={() => setFrameType(type)}
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-xs font-semibold transition ${frameType === type ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-100 hover:bg-gray-50 text-gray-500'}`}
+                                        >
+                                            {type.includes('macos') && <Laptop size={20}/>}
+                                            {type === 'win' && <Monitor size={20}/>}
+                                            {type === 'iphone' && <Smartphone size={20}/>}
+                                            {type === 'tablet' && <Tablet size={20}/>}
+                                            {type === 'none' && <Layout size={20}/>}
+                                            <span className="capitalize">{type.replace('macos-', 'Mac ')}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                {/* Frame Scale Slider */}
+                                <div>
+                                    <div className="flex justify-between mb-1">
+                                        <label className="text-xs font-bold text-gray-400">Frame Size</label>
+                                        <span className="text-xs text-gray-400">{frameScale}%</span>
+                                    </div>
+                                    <input type="range" min="50" max="150" value={frameScale} onChange={(e) => setFrameScale(Number(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"/>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* 3.1 Presets UI */}
-                    {bgType === 'preset' && (
-                        <div className="grid grid-cols-6 gap-2">
-                            {GRADIENTS.map((grad, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => { setBackgroundStyle(grad); setBgType('preset'); }}
-                                    className={`w-full aspect-square rounded-lg shadow-sm border border-gray-200 transition transform hover:scale-105 ${backgroundStyle === grad && bgType === 'preset' ? 'ring-2 ring-blue-500 ring-offset-1' : ''} ${grad === 'transparent' ? 'checkerboard-bg' : ''}`}
-                                    style={grad !== 'transparent' ? { background: grad } : {}}
-                                    title={grad === 'transparent' ? 'Transparent PNG' : `Preset ${i+1}`}
-                                >
-                                   {grad === 'transparent' && <span className="text-[8px] text-gray-400 font-bold">PNG</span>}
+                    {/* 2. CONTENT & IMAGE */}
+                    <div className="border border-gray-100 rounded-xl overflow-hidden">
+                        <button onClick={() => toggleSection('content')} className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition">
+                            <span className="font-bold text-sm text-gray-700 flex items-center gap-2"><ImageIcon size={16}/> Screen Content</span>
+                            {openSection === 'content' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                        </button>
+
+                        {openSection === 'content' && (
+                            <div className="p-4 bg-white space-y-4">
+                                {/* Upload */}
+                                <button onClick={() => fileInputRef.current.click()} className="w-full py-3 border border-dashed border-gray-300 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-50 hover:border-blue-400 hover:text-blue-500 transition flex items-center justify-center gap-2">
+                                    <Upload size={16}/> {image ? 'Replace Image' : 'Upload Image'}
                                 </button>
-                            ))}
-                             {/* Solid Color Picker */}
-                             <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                                <input type="color" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => { setBackgroundStyle(e.target.value); setBgType('preset'); }} />
-                                <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-400"><Palette size={14}/></div>
-                             </div>
-                        </div>
-                    )}
+                                <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*"/>
 
-                     {/* 3.2 Custom Gradient UI */}
-                    {bgType === 'customGrad' && (
-                        <div className="flex gap-2">
-                            <div className="flex-1">
-                                <label className="text-[10px] font-bold text-gray-500 uppercase">Color 1</label>
-                                <div className="flex items-center gap-2 mt-1 border p-1 rounded-lg">
-                                    <input type="color" value={customGradColors[0]} onChange={(e) => setCustomGradColors([e.target.value, customGradColors[1]])} className="w-6 h-6 rounded cursor-pointer border-none p-0"/>
-                                    <span className="text-xs font-mono text-gray-600">{customGradColors[0]}</span>
+                                {isBrowser && (
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-400 mb-1 block">Browser URL</label>
+                                        <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-2">
+                                            <Type size={14} className="text-gray-400"/>
+                                            <input type="text" value={urlText} onChange={(e) => setUrlText(e.target.value)} className="w-full py-2 bg-transparent text-sm outline-none" placeholder="Type URL..."/>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Zoom & Fit */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-400 mb-1 block">Zoom</label>
+                                        <input type="range" min="10" max="200" value={imgZoom} onChange={(e) => setImgZoom(Number(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                                    </div>
+                                    <div className="flex items-end">
+                                        <button onClick={() => setImgFit(imgFit === 'cover' ? 'contain' : 'cover')} className="w-full py-1 text-xs font-bold border rounded bg-gray-50 hover:bg-gray-100">
+                                            Fit: {imgFit.toUpperCase()}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Position (Pan) */}
+                                <div>
+                                    <div className="flex justify-between mb-1">
+                                        <label className="text-xs font-bold text-gray-400">Position (Pan X / Y)</label>
+                                        <button onClick={() => setImgPos({x:0, y:0})} className="text-[10px] text-blue-600 font-bold hover:underline">Reset</button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <input type="range" min="-300" max="300" value={imgPos.x} onChange={(e) => setImgPos({...imgPos, x: Number(e.target.value)})} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" title="Move X"/>
+                                        <input type="range" min="-300" max="300" value={imgPos.y} onChange={(e) => setImgPos({...imgPos, y: Number(e.target.value)})} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" title="Move Y"/>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex-1">
-                                <label className="text-[10px] font-bold text-gray-500 uppercase">Color 2</label>
-                                <div className="flex items-center gap-2 mt-1 border p-1 rounded-lg">
-                                    <input type="color" value={customGradColors[1]} onChange={(e) => setCustomGradColors([customGradColors[0], e.target.value])} className="w-6 h-6 rounded cursor-pointer border-none p-0"/>
-                                    <span className="text-xs font-mono text-gray-600">{customGradColors[1]}</span>
+                        )}
+                    </div>
+
+                    {/* 3. BACKGROUND */}
+                    <div className="border border-gray-100 rounded-xl overflow-hidden">
+                        <button onClick={() => toggleSection('background')} className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition">
+                            <span className="font-bold text-sm text-gray-700 flex items-center gap-2"><Palette size={16}/> Background</span>
+                            {openSection === 'background' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                        </button>
+                        
+                        {openSection === 'background' && (
+                            <div className="p-4 bg-white space-y-4">
+                                <div className="grid grid-cols-5 gap-2">
+                                    {GRADIENTS.map((g, i) => (
+                                        <button 
+                                            key={i} 
+                                            onClick={() => setBgStyle(g)} 
+                                            className={`w-full aspect-square rounded-lg border hover:scale-105 transition shadow-sm ${bgStyle === g ? 'ring-2 ring-blue-500' : 'border-gray-200'}`}
+                                            style={{ background: g }}
+                                        />
+                                    ))}
+                                    <div className="relative w-full aspect-square rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100">
+                                        <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onChange={(e) => setBgStyle(e.target.value)} />
+                                        <Palette size={14} className="text-gray-400"/>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label className="text-xs font-bold text-gray-400 mb-1 block">Canvas Padding</label>
+                                    <input type="range" min="0" max="200" value={padding} onChange={(e) => setPadding(Number(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"/>
                                 </div>
                             </div>
-                        </div>
-                    )}
-
-                    {/* 3.3 Custom Image UI */}
-                     {bgType === 'customImg' && (
-                        <div>
-                            <button
-                                onClick={() => bgFileInputRef.current.click()}
-                                className="w-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 px-4 py-6 rounded-xl font-bold flex flex-col items-center gap-2 hover:bg-gray-100 transition"
-                            >
-                                <ImageIcon size={24} className="opacity-50"/>
-                                <span className="text-sm">{customBgImage ? 'Change Background Image' : 'Upload Background Wallpaper'}</span>
-                            </button>
-                             <input type="file" ref={bgFileInputRef} onChange={(e) => handleImageUpload(e, setCustomBgImage)} className="hidden" accept="image/*" />
-                             {customBgImage && (
-                                 <button onClick={() => setCustomBgImage(null)} className="text-xs text-red-500 mt-2 flex items-center gap-1 hover:underline"><X size={10}/> Remove Image</button>
-                             )}
-                        </div>
-                    )}
-                </div>
-
-                <hr className="border-gray-100"/>
-
-                 {/* --- SECTION 4: LAYOUT & 3D --- */}
-                 <div className="space-y-5">
-                    {/* Padding Slider */}
-                    <div>
-                        <div className="flex justify-between mb-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase">Padding</label>
-                            <span className="text-xs text-gray-400">{padding}px</span>
-                        </div>
-                        <input
-                            type="range" min="0" max="150" value={padding}
-                            onChange={(e) => setPadding(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
+                        )}
                     </div>
 
-                     {/* Roundness Slider (Disabled for phones) */}
-                     <div className={isMobile ? 'opacity-50 pointer-events-none' : ''}>
-                        <div className="flex justify-between mb-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase">Roundness</label>
-                            <span className="text-xs text-gray-400">{borderRadius}px</span>
-                        </div>
-                        <input
-                            type="range" min="0" max="40" value={borderRadius}
-                            onChange={(e) => setBorderRadius(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
-                    </div>
-
-                    {/* 3D TILT CONTROLS */}
-                    <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                        <div className="flex justify-between mb-3">
-                            <label className="text-xs font-bold text-indigo-800 uppercase flex items-center gap-1"><Rotate3D size={12}/> 3D Perspective</label>
-                            <button onClick={() => setTilt({x:0, y:0})} className="text-[10px] text-indigo-600 hover:underline">Reset</button>
-                        </div>
-                        <div className="space-y-3">
-                             {/* X Axis */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-indigo-400 w-4">X</span>
-                                <input
-                                    type="range" min="-30" max="30" value={tilt.x}
-                                    onChange={(e) => setTilt({...tilt, x: Number(e.target.value)})}
-                                    className="w-full h-1 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
+                    {/* 4. 3D EFFECTS */}
+                    <div className="border border-gray-100 rounded-xl overflow-hidden">
+                        <button onClick={() => toggleSection('3d')} className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition">
+                            <span className="font-bold text-sm text-gray-700 flex items-center gap-2"><Rotate3D size={16}/> 3D Tilt</span>
+                            {openSection === '3d' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                        </button>
+                        
+                        {openSection === '3d' && (
+                            <div className="p-4 bg-white space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-400 block mb-1">Tilt X</label>
+                                        <input type="range" min="-45" max="45" value={tilt.x} onChange={(e) => setTilt({...tilt, x: Number(e.target.value)})} className="w-full h-1.5 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-400 block mb-1">Tilt Y</label>
+                                        <input type="range" min="-45" max="45" value={tilt.y} onChange={(e) => setTilt({...tilt, y: Number(e.target.value)})} className="w-full h-1.5 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="text-xs font-bold text-gray-400 block mb-1">Rotate Z</label>
+                                        <input type="range" min="-180" max="180" value={tilt.rotate} onChange={(e) => setTilt({...tilt, rotate: Number(e.target.value)})} className="w-full h-1.5 bg-purple-100 rounded-lg appearance-none cursor-pointer accent-purple-600"/>
+                                    </div>
+                                </div>
+                                <button onClick={() => setTilt({x:0, y:0, rotate:0})} className="w-full py-2 text-xs font-bold text-red-500 bg-red-50 rounded-lg hover:bg-red-100">Reset 3D</button>
                             </div>
-                             {/* Y Axis */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-indigo-400 w-4">Y</span>
-                                <input
-                                    type="range" min="-30" max="30" value={tilt.y}
-                                    onChange={(e) => setTilt({...tilt, y: Number(e.target.value)})}
-                                    className="w-full h-1 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                 </div>
-
             </div>
+
         </div>
-
       </div>
-
-      {/* Styles for Checkerboard & Scrollbar */}
+      
+      {/* GLOBAL CSS */}
       <style jsx global>{`
         .checkerboard-bg {
           background-image:
-            linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-            linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-            linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+            linear-gradient(45deg, #ddd 25%, transparent 25%),
+            linear-gradient(-45deg, #ddd 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #ddd 75%),
+            linear-gradient(-45deg, transparent 75%, #ddd 75%);
           background-size: 20px 20px;
           background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
-        .control-btn {
-            @apply p-2 text-[11px] rounded-lg border font-bold flex flex-col items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-600 transition;
-        }
-        .control-btn.active {
-            @apply bg-blue-50 text-blue-700 border-blue-200 shadow-sm;
-        }
-         .control-btn.active-red {
-            @apply bg-red-50 text-red-700 border-red-200 shadow-sm;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #d1d5db;
-          border-radius: 4px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
       `}</style>
     </div>
   );

@@ -34,8 +34,7 @@ export default function MockupStudio() {
   
   // Frame
   const [frameType, setFrameType] = useState('macos-dark'); 
-  // ✅ CHANGED: Default Scale 50% (User request)
-  const [frameScale, setFrameScale] = useState(50); 
+  const [frameScale, setFrameScale] = useState(50); // Default 50%
   
   // Background
   const [bgType, setBgType] = useState('preset'); // preset, custom, image
@@ -52,6 +51,23 @@ export default function MockupStudio() {
   const mockupRef = useRef(null);
   const fileInputRef = useRef(null);
   const bgInputRef = useRef(null);
+
+  // --- SEO SCHEMA (JSON-LD) ---
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'NameDotify Mockup Studio',
+    url: 'https://namedotify.com/mockup',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web Browser',
+    description: 'Free online screenshot beautifier and 3D mockup generator. Create iPhone, macOS, and Windows mockups instantly.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    },
+    featureList: '3D Tilt, High Resolution Export, Custom Backgrounds, iPhone 15 Frames'
+  };
 
   // --- EFFECT: Custom Gradient Sync ---
   useEffect(() => {
@@ -125,8 +141,16 @@ export default function MockupStudio() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-gray-900 font-sans pt-24 pb-0 md:pb-20">
       
-      <title>3D Mockup Generator & Screenshot Beautifier | NameDotify</title>
+      {/* ✅ SEO TAGS INJECTION */}
+      <title>Free 3D Mockup Generator & Screenshot Beautifier | NameDotify</title>
+      <meta name="description" content="Turn boring screenshots into viral 3D mockups. Add iPhone 15, macOS, and Windows frames instantly. Free, no watermark, browser-based tool." />
+      <meta property="og:title" content="NameDotify Mockup Studio - Free Screenshot Beautifier" />
+      <meta property="og:description" content="Create stunning device mockups for your social media and landing pages in seconds." />
+      <meta name="keywords" content="screenshot mockup, 3d device generator, macbook mockup free, iphone frame generator, twitter image maker" />
       
+      {/* ✅ SCHEMA INJECTION */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
       <div className="max-w-[1800px] mx-auto px-0 md:px-6">
         
         {/* --- HEADER (Desktop Only) --- */}

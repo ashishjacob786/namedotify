@@ -24,7 +24,7 @@ const PRESET_GRADS = [
 export default function MockupStudio() {
 
   // --- STATE ---
-  const [activeTab, setActiveTab] = useState('device'); // device, content, appearance
+  const [activeTab, setActiveTab] = useState('device'); // device, content, style
   
   // Content
   const [image, setImage] = useState(null);
@@ -34,10 +34,11 @@ export default function MockupStudio() {
   
   // Frame
   const [frameType, setFrameType] = useState('macos-dark'); 
-  const [frameScale, setFrameScale] = useState(90); 
+  // ✅ CHANGED: Default Scale 50% (User request)
+  const [frameScale, setFrameScale] = useState(50); 
   
   // Background
-  const [bgType, setBgType] = useState('preset'); 
+  const [bgType, setBgType] = useState('preset'); // preset, custom, image
   const [bgStyle, setBgStyle] = useState(PRESET_GRADS[1]);
   const [customColors, setCustomColors] = useState(['#FF3CAC', '#784BA0']);
   const [customBgImg, setCustomBgImg] = useState(null);
@@ -75,7 +76,7 @@ export default function MockupStudio() {
       const reader = new FileReader();
       reader.onload = (e) => {
           setCustomBgImg(e.target.result);
-          setBgType('image');
+          setBgType('image'); // Switch to image mode automatically
       };
       reader.readAsDataURL(file);
     }
@@ -106,7 +107,7 @@ export default function MockupStudio() {
           position: 'relative', 
           backgroundColor: 'white',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-          overflow: 'hidden' // ✅ FIXED: Image won't bleed out
+          overflow: 'hidden' 
       };
 
       if (frameType === 'iphone') {
@@ -269,7 +270,7 @@ export default function MockupStudio() {
                                 ))}
                             </div>
 
-                            {/* PRESETS */}
+                            {/* 1. PRESETS */}
                             {bgType === 'preset' && (
                                 <div className="grid grid-cols-5 gap-2">
                                     {PRESET_GRADS.map((g, i) => (
@@ -285,11 +286,25 @@ export default function MockupStudio() {
                                 </div>
                             )}
 
-                            {/* CUSTOM GRADIENT */}
+                            {/* 2. CUSTOM GRADIENT */}
                             {bgType === 'custom' && (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 border p-2 rounded-xl"><input type="color" value={customColors[0]} onChange={(e) => setCustomColors([e.target.value, customColors[1]])} className="w-8 h-8 rounded cursor-pointer border-none bg-transparent"/><span className="text-xs font-mono text-gray-500">{customColors[0]}</span></div>
                                     <div className="flex items-center gap-2 border p-2 rounded-xl"><input type="color" value={customColors[1]} onChange={(e) => setCustomColors([customColors[0], e.target.value])} className="w-8 h-8 rounded cursor-pointer border-none bg-transparent"/><span className="text-xs font-mono text-gray-500">{customColors[1]}</span></div>
+                                </div>
+                            )}
+
+                            {/* 3. CUSTOM IMAGE (Restored) */}
+                            {bgType === 'image' && (
+                                <div className="space-y-3">
+                                    <button onClick={() => bgInputRef.current.click()} className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50 flex flex-col items-center gap-2 transition">
+                                        <ImageIcon size={24} className="opacity-50"/>
+                                        {customBgImg ? 'Change Wallpaper' : 'Upload Background Image'}
+                                    </button>
+                                    <input type="file" ref={bgInputRef} onChange={handleBgUpload} className="hidden" accept="image/*"/>
+                                    {customBgImg && (
+                                        <button onClick={() => { setCustomBgImg(null); setBgType('preset'); }} className="text-[10px] text-red-500 hover:underline w-full text-center">Remove Image</button>
+                                    )}
                                 </div>
                             )}
 

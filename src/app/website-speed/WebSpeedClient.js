@@ -53,7 +53,10 @@ export default function WebSpeedClient() {
 
     try {
       // Google PageSpeed Insights API (Free Endpoint)
-      const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&strategy=${device.toUpperCase()}&category=performance`;
+      // आपकी अपनी Google PageSpeed API Key
+const API_KEY = "AIzaSyAuByq8euyJgMnkCLGnolj4aXTeUkAXbQw"; 
+
+const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&strategy=${device.toUpperCase()}&category=performance&key=${API_KEY}`;
       
       const response = await fetch(apiUrl);
       const result = await response.json();

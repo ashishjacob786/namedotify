@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { 
   Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, 
   CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, 
-  Key, Type, Wifi, Gauge, Rocket, Layers 
+  Key, Type, Wifi, Gauge, Rocket, Layers, Code2, Target, Blocks
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -48,7 +48,7 @@ export default function HomePage() {
     }, 1000);
   };
 
-  // ✅ UPDATED TOOLS LIST (Now with Mockup Studio)
+  // ✅ UPDATED TOOLS LIST (Now with 18 Tools)
   const tools = [
     { 
       name: 'Device Mockup Studio', 
@@ -58,25 +58,44 @@ export default function HomePage() {
       badge: 'Hot'
     },
     { 
-      name: 'Website Speed Checker', 
-      icon: <Rocket className="w-8 h-8 text-indigo-500" />, 
-      desc: 'Analyze Core Web Vitals and get a detailed Lighthouse performance score.', 
-      link: '/website-speed',
+      name: 'Live Code Editor', 
+      icon: <Blocks className="w-8 h-8 text-blue-500" />, 
+      desc: 'Write, test, and preview HTML, CSS, and JS code in a live workspace.', 
+      link: '/live-editor',
       badge: 'New & Pro'
     },
     { 
-      name: 'Internet Speed Test', 
-      icon: <Gauge className="w-8 h-8 text-cyan-500" />, 
-      desc: 'Check your live internet bandwidth, Download, Upload, and Ping latency.', 
-      link: '/speed-test',
+      name: 'Schema Generator', 
+      icon: <Code2 className="w-8 h-8 text-indigo-500" />, 
+      desc: 'Generate flawless JSON-LD structured data to win Google Rich Snippets.', 
+      link: '/schema-generator',
       badge: 'New'
+    },
+    { 
+      name: 'UTM Link Builder', 
+      icon: <Target className="w-8 h-8 text-cyan-500" />, 
+      desc: 'Generate precise tracking URLs for your digital marketing campaigns.', 
+      link: '/utm-builder',
+      badge: 'New'
+    },
+    { 
+      name: 'Website Speed Checker', 
+      icon: <Rocket className="w-8 h-8 text-violet-500" />, 
+      desc: 'Analyze Core Web Vitals and get a detailed Lighthouse performance score.', 
+      link: '/website-speed',
+      badge: 'Pro'
+    },
+    { 
+      name: 'Internet Speed Test', 
+      icon: <Gauge className="w-8 h-8 text-sky-500" />, 
+      desc: 'Check your live internet bandwidth, Download, Upload, and Ping latency.', 
+      link: '/speed-test'
     },
     { 
       name: 'Reverse IP Lookup', 
       icon: <Server className="w-8 h-8 text-teal-500" />, 
       desc: 'Discover all domains hosted on a single IP address. Essential for OSINT.', 
-      link: '/reverse-ip',
-      badge: 'Pro'
+      link: '/reverse-ip'
     },
     { 
       name: 'Business Name Generator', 
@@ -87,7 +106,7 @@ export default function HomePage() {
     },
     { 
       name: 'Whois Lookup', 
-      icon: <Database className="w-8 h-8 text-blue-500" />, 
+      icon: <Database className="w-8 h-8 text-blue-600" />, 
       desc: 'Instantly check domain ownership, age, registrar, and expiry dates.', 
       link: '/whois' 
     },
@@ -152,7 +171,7 @@ export default function HomePage() {
       
       {/* Client SEO Tags */}
       <title>NameDotify | Free Webmaster Tools, Whois, Speed Test & More</title>
-      <meta name="description" content="Access 15+ free premium web tools: Device Mockup Studio, Whois Lookup, Website Speed Checker, Reverse IP, AI Name Generator, and more." />
+      <meta name="description" content="Access 18+ free premium web tools: Live Code Editor, Schema Generator, Device Mockups, Website Speed Checker, and more." />
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

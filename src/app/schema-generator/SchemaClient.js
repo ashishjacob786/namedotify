@@ -4,7 +4,8 @@ import {
   Code2, Copy, CheckCircle, ExternalLink, 
   FileText, HelpCircle, ShoppingBag, Store, 
   User, Building2, Plus, Trash2, LayoutTemplate,
-  Globe, Image as ImageIcon, Briefcase, MapPin, Star
+  Globe, Image as ImageIcon, Briefcase, MapPin, Star,
+  Zap
 } from 'lucide-react';
 
 export default function SchemaClient() {
@@ -130,7 +131,7 @@ export default function SchemaClient() {
     const rawCode = `<script type="application/ld+json">\n${JSON.stringify(schemaObj, null, 2)}\n</script>`;
     setGeneratedCode(rawCode);
 
-    // FIX: Safely escape HTML tags before setting innerHTML so the script tags actually display!
+    // Safely escape HTML tags before setting innerHTML
     let safeHtml = rawCode.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     
     // Custom Syntax Highlighting (Regex)
@@ -410,7 +411,7 @@ export default function SchemaClient() {
                         <div className="w-10"></div> {/* Spacer */}
                     </div>
 
-                    {/* Code Display Area (Fixed Black Screen Issue) */}
+                    {/* Code Display Area */}
                     <div className="flex-1 overflow-auto custom-scroll relative p-6">
                         {/* Floating Copy Button inside Editor */}
                         <button 
@@ -452,6 +453,45 @@ export default function SchemaClient() {
                 </div>
             </div>
         </div>
+
+        {/* --- SEO ARTICLE & CONTENT --- */}
+        <article className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-200 mt-16 prose prose-indigo max-w-none">
+            <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">How Schema Markup Boosts Your SEO</h2>
+            <p className="text-slate-600 leading-relaxed text-lg text-center max-w-3xl mx-auto mb-12">
+                Search engines like Google use <strong>Structured Data (JSON-LD)</strong> to understand the context of your content. By adding accurate Schema Markup to your pages, you increase your chances of earning eye-catching <strong>Rich Snippets</strong> in the search results, which drastically improves your Click-Through Rate (CTR).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose mb-12">
+                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100 hover:shadow-md transition duration-300">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm mb-4"><HelpCircle size={24}/></div>
+                    <h3 className="font-bold text-slate-900 text-xl mb-2">FAQ Schema</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">Displays your frequently asked questions directly under your website link in Google Search, taking up more screen space and driving clicks.</p>
+                </div>
+                <div className="p-6 bg-orange-50 rounded-2xl border border-orange-100 hover:shadow-md transition duration-300">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-orange-600 shadow-sm mb-4"><ShoppingBag size={24}/></div>
+                    <h3 className="font-bold text-slate-900 text-xl mb-2">Product Schema</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">Showcases product prices, availability, and review ratings (stars) directly in the search results to build immediate trust and drive sales.</p>
+                </div>
+                <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 hover:shadow-md transition duration-300">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm mb-4"><Zap size={24}/></div>
+                    <h3 className="font-bold text-slate-900 text-xl mb-2">Instant JSON-LD</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">JSON-LD is Google's highly recommended format. It runs silently in the background, doesn't break your site's design, and is easily read by search bots.</p>
+                </div>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 not-prose">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <Code2 className="text-indigo-600"/> How to use the generated code?
+                </h3>
+                <ol className="list-decimal pl-5 space-y-4 text-slate-600 marker:text-indigo-600 marker:font-bold">
+                    <li>Select the type of Schema you want to create (Article, FAQ, Product, etc.) from the top menu.</li>
+                    <li>Fill out the required information in the form fields. The code editor will update in real-time.</li>
+                    <li>Click the <strong className="text-slate-800">"Copy Schema Code"</strong> button on the right side.</li>
+                    <li>Paste the copied script tag directly into the <code>&lt;head&gt;</code> or anywhere in the <code>&lt;body&gt;</code> section of your specific webpage.</li>
+                    <li>Use the <strong className="text-slate-800">"Test with Google"</strong> button to verify your structured data in Google's Rich Results Testing Tool.</li>
+                </ol>
+            </div>
+        </article>
 
       </div>
       

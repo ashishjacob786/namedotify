@@ -54,7 +54,7 @@ export default function YoutubeClient() {
     setVideoData(null);
 
     // ✅ अपनी असली API Key यहाँ डालें (जो आपने Google Cloud से ली है)
-    const API_KEY = "यहाँ_अपनी_AIza_वाली_API_KEY_पेस्ट_करें"; 
+    const API_KEY = "AIzaSyAuByq8euyJgMnkCLGnolj4aXTeUkAXbQw"; 
 
     try {
         // Fetch Video Details using YouTube Data API v3

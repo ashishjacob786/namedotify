@@ -1,7 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, Key, Type, Wifi } from 'lucide-react';
+import { 
+  Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, 
+  CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, 
+  Key, Type, Wifi, Gauge, Rocket 
+} from 'lucide-react';
 
 export default function HomePage() {
   const [input, setInput] = useState('');
@@ -21,7 +25,6 @@ export default function HomePage() {
     }
   };
 
-  // ✅ Domain Search Simulation
   const tlds = ['.com', '.net', '.org', '.io', '.co', '.ai'];
 
   const checkDomain = async () => {
@@ -29,6 +32,7 @@ export default function HomePage() {
     setLoading(true);
     setResults([]);
 
+    // Simulate domain search
     setTimeout(() => {
         const cleanKeyword = input.replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
         const domainsToCheck = input.includes('.') ? [input] : tlds.map(tld => `${cleanKeyword}${tld}`);
@@ -44,112 +48,134 @@ export default function HomePage() {
     }, 1000);
   };
 
-  // ✅ ALL 11 TOOLS LIST (Added Fonts, SSL, IP, Hosting, etc.)
+  // ✅ UPDATED TOOLS LIST (14 Tools Total)
   const tools = [
     { 
       name: 'Business Name Generator', 
-      icon: <Zap className="w-8 h-8 text-purple-600" />, 
-      desc: 'AI-powered tool to generate creative brand names.', 
-      link: '/generator' 
+      icon: <Zap className="w-8 h-8 text-purple-500" />, 
+      desc: 'AI-powered tool to generate creative and catchy brand names.', 
+      link: '/generator',
+      badge: 'Popular'
     },
     { 
       name: 'Whois Lookup', 
-      icon: <Database className="w-8 h-8 text-blue-600" />, 
-      desc: 'Check domain ownership, age, and expiry dates.', 
+      icon: <Database className="w-8 h-8 text-blue-500" />, 
+      desc: 'Instantly check domain ownership, age, registrar, and expiry dates.', 
       link: '/whois' 
     },
     { 
-      name: 'DNS Record Checker', 
-      icon: <Globe className="w-8 h-8 text-green-600" />, 
-      desc: 'Verify A, MX, CNAME records and propagation.', 
-      link: '/dns' 
+      name: 'Website Speed Checker', 
+      icon: <Rocket className="w-8 h-8 text-indigo-500" />, 
+      desc: 'Analyze Core Web Vitals and get a detailed Lighthouse performance score.', 
+      link: '/website-speed',
+      badge: 'New & Pro'
+    },
+    { 
+      name: 'Internet Speed Test', 
+      icon: <Gauge className="w-8 h-8 text-cyan-500" />, 
+      desc: 'Check your live internet bandwidth, Download, Upload, and Ping latency.', 
+      link: '/speed-test',
+      badge: 'New'
+    },
+    { 
+      name: 'Reverse IP Lookup', 
+      icon: <Server className="w-8 h-8 text-teal-500" />, 
+      desc: 'Discover all domains hosted on a single IP address. Essential for OSINT.', 
+      link: '/reverse-ip',
+      badge: 'Pro'
     },
     { 
       name: 'Pro QR Studio', 
-      icon: <QrCode className="w-8 h-8 text-orange-600" />, 
-      desc: 'Generate custom QR codes for Wi-Fi, URLs & vCards.', 
+      icon: <QrCode className="w-8 h-8 text-orange-500" />, 
+      desc: 'Design custom QR codes with logos, colors, and HD frames.', 
       link: '/qrcode' 
     },
     { 
+      name: 'DNS Record Checker', 
+      icon: <Globe className="w-8 h-8 text-green-500" />, 
+      desc: 'Verify global DNS propagation for A, MX, TXT, and CNAME records.', 
+      link: '/dns' 
+    },
+    { 
       name: 'Email Signature', 
-      icon: <Mail className="w-8 h-8 text-pink-600" />, 
-      desc: 'Create professional HTML email signatures for Gmail.', 
+      icon: <Mail className="w-8 h-8 text-pink-500" />, 
+      desc: 'Create professional HTML email signatures for Gmail and Outlook.', 
       link: '/signature' 
     },
     { 
       name: 'IP Address Lookup', 
-      icon: <MapPin className="w-8 h-8 text-red-600" />, 
-      desc: 'Find geolocation, ISP, and city of any IP address.', 
+      icon: <MapPin className="w-8 h-8 text-red-500" />, 
+      desc: 'Find the exact geolocation, ISP, and city of any IP address.', 
       link: '/ip' 
     },
     { 
       name: 'SSL Checker', 
-      icon: <Lock className="w-8 h-8 text-emerald-600" />, 
-      desc: 'Verify SSL certificate validity and security issues.', 
+      icon: <Lock className="w-8 h-8 text-emerald-500" />, 
+      desc: 'Verify SSL certificate validity, issuer, and potential security issues.', 
       link: '/ssl' 
     },
     { 
       name: 'Secure Password Gen', 
-      icon: <Key className="w-8 h-8 text-teal-600" />, 
-      desc: 'Generate strong, uncrackable passwords instantly.', 
+      icon: <Key className="w-8 h-8 text-violet-500" />, 
+      desc: 'Generate strong, uncrackable, and random passwords instantly.', 
       link: '/password' 
     },
     { 
       name: 'Hosting Checker', 
-      icon: <Server className="w-8 h-8 text-indigo-600" />, 
-      desc: 'Discover which hosting provider a website is using.', 
+      icon: <Server className="w-8 h-8 text-blue-600" />, 
+      desc: 'Discover which web hosting provider a specific website is using.', 
       link: '/hosting' 
     },
     { 
       name: 'Server Status', 
-      icon: <Wifi className="w-8 h-8 text-cyan-600" />, 
-      desc: 'Check if a website is down or online in real-time.', 
+      icon: <Wifi className="w-8 h-8 text-sky-500" />, 
+      desc: 'Check if a website server is down or online in real-time.', 
       link: '/status' 
     },
     { 
       name: 'Fancy Fonts Generator', 
-      icon: <Type className="w-8 h-8 text-fuchsia-600" />, 
-      desc: 'Generate stylish text for Instagram & Bio.', 
-      link: 'https://namedotify.com/fonts-generator' // ✅ External Link Added
+      icon: <Type className="w-8 h-8 text-fuchsia-500" />, 
+      desc: 'Generate stylish text and cool fonts for Instagram & Bio.', 
+      link: 'https://namedotify.com/fonts-generator' 
     },
   ];
 
   return (
-    // ✅ FIX: 'pt-28' added to prevent Navbar overlap
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 pt-28">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans pb-20 pt-28">
       
       {/* Client SEO Tags */}
-      <title>NameDotify | Free Webmaster Tools, Whois, DNS & More</title>
-      <meta name="description" content="Access 10+ free webmaster tools: Whois Lookup, AI Name Generator, DNS Checker, QR Code Creator, and more." />
+      <title>NameDotify | Free Webmaster Tools, Whois, Speed Test & More</title>
+      <meta name="description" content="Access 14+ free premium web tools: Whois Lookup, Website Speed Checker, Reverse IP, AI Name Generator, QR Studio, and more." />
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* --- HERO SECTION --- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div className="text-center max-w-4xl mx-auto">
           
-          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100">
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wide mb-8 border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-4">
             <Activity size={14} className="mr-2" /> All-in-One Webmaster Toolkit
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">
-            Everything you need to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Grow Online.</span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-500">
+            Everything you need to <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">Grow Online.</span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-10 leading-relaxed">
-            Search <strong>Domains</strong>, generate <strong>Brand Names</strong>, or analyze <strong>DNS Records</strong>. 
-            Professional tools for founders, 100% free.
+          <p className="text-xl text-slate-500 mb-12 leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
+            Search <strong>Domains</strong>, check <strong>Website Speed</strong>, or analyze <strong>Reverse IPs</strong>. 
+            Professional suite of tools for founders and developers, 100% free.
           </p>
 
-          {/* SEARCH BAR */}
-          <div className="relative max-w-2xl mx-auto mb-12 group">
+          {/* DOMAIN SEARCH BAR */}
+          <div className="relative max-w-2xl mx-auto group z-20 animate-in fade-in zoom-in-95 duration-500">
             <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-              <Search className="h-6 w-6 text-gray-400 group-focus-within:text-blue-500 transition" />
+              <Search className="h-6 w-6 text-slate-400 group-focus-within:text-indigo-500 transition" />
             </div>
             <input
               type="text"
-              className="block w-full pl-16 pr-36 py-5 bg-white border-2 border-gray-100 rounded-2xl shadow-xl shadow-blue-50/50 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 focus:outline-none text-lg transition placeholder-gray-400"
+              className="block w-full pl-16 pr-36 py-5 bg-white border-2 border-slate-100 rounded-2xl shadow-xl shadow-slate-200/50 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 focus:outline-none text-lg transition placeholder-slate-400"
               placeholder="Search a domain (e.g. namedotify.com)"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -158,7 +184,7 @@ export default function HomePage() {
             <button 
               onClick={checkDomain}
               disabled={loading}
-              className="absolute right-3 top-3 bottom-3 bg-blue-600 text-white px-8 rounded-xl font-bold hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-70 shadow-lg shadow-blue-200"
+              className="absolute right-3 top-3 bottom-3 bg-indigo-600 text-white px-8 rounded-xl font-bold hover:bg-indigo-700 transition flex items-center gap-2 disabled:opacity-70 shadow-lg shadow-indigo-200 active:scale-95"
             >
               {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Search'}
             </button>
@@ -166,80 +192,90 @@ export default function HomePage() {
 
           {/* SEARCH RESULTS */}
           {results.length > 0 && (
-            <div className="max-w-2xl mx-auto space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
-                <div className="flex justify-between items-center mb-2 px-2">
-                    <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Availability Results</span>
-                    <button onClick={() => setResults([])} className="text-xs font-bold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1 rounded-full">CLEAR</button>
+            <div className="max-w-2xl mx-auto space-y-3 mt-8 animate-in fade-in slide-in-from-top-4 duration-300 text-left relative z-10">
+                <div className="flex justify-between items-center mb-3 px-2">
+                    <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Availability Results</span>
+                    <button onClick={() => setResults([])} className="text-xs font-bold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1 rounded-full transition hover:bg-red-100">CLEAR</button>
                 </div>
                 {results.map((item, index) => (
                 <div 
                     key={index}
-                    className={`p-4 rounded-2xl border flex items-center justify-between transition-all duration-200 ${
+                    className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-200 ${
                         item.status === 'available' 
                         ? 'bg-emerald-50 border-emerald-100 shadow-sm' 
-                        : 'bg-white border-gray-100 opacity-60'
+                        : 'bg-white border-slate-100 opacity-75'
                     }`}
                 >
-                    <div className="flex items-center gap-4">
-                    {item.status === 'available' ? (
-                        <div className="bg-emerald-100 p-2 rounded-full">
-                            <CheckCircle className="h-5 w-5 text-emerald-600" />
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        {item.status === 'available' ? (
+                            <div className="bg-emerald-100 p-2 rounded-full flex-shrink-0">
+                                <CheckCircle className="h-5 w-5 text-emerald-600" />
+                            </div>
+                        ) : (
+                            <div className="bg-slate-100 p-2 rounded-full flex-shrink-0">
+                                <XCircle className="h-5 w-5 text-slate-400" />
+                            </div>
+                        )}
+                        <div>
+                            <p className={`font-bold text-lg tracking-tight ${item.status === 'available' ? 'text-slate-900' : 'text-slate-500 line-through'}`}>
+                                {item.domain}
+                            </p>
+                            <p className={`text-xs font-bold uppercase ${item.status === 'available' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                {item.status === 'available' ? 'Available to Register' : 'Already Taken'}
+                            </p>
                         </div>
-                    ) : (
-                        <div className="bg-gray-100 p-2 rounded-full">
-                            <XCircle className="h-5 w-5 text-gray-500" />
-                        </div>
-                    )}
-                    <div>
-                        <p className={`font-bold text-lg tracking-tight ${item.status === 'available' ? 'text-gray-900' : 'text-gray-500 line-through'}`}>
-                            {item.domain}
-                        </p>
-                        <p className={`text-xs font-bold uppercase ${item.status === 'available' ? 'text-emerald-600' : 'text-gray-400'}`}>
-                            {item.status === 'available' ? 'Available' : 'Taken'}
-                        </p>
-                    </div>
                     </div>
 
                     {item.status === 'available' ? (
-                    <a 
-                        href={`https://www.hostinger.com/web-hosting?domain=${item.domain}`} 
-                        target="_blank" 
-                        className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-emerald-700 text-sm flex items-center gap-2 shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5"
-                    >
-                        Buy ${item.price} <ArrowRight size={16}/>
-                    </a>
+                        <a 
+                            href={`https://www.hostinger.com/web-hosting?domain=${item.domain}`} 
+                            target="_blank" 
+                            className="bg-emerald-600 text-white w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold hover:bg-emerald-700 text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5"
+                        >
+                            Buy ${item.price} <ArrowRight size={16}/>
+                        </a>
                     ) : (
-                    <Link href={`/whois?domain=${item.domain}`} className="text-sm font-bold text-gray-500 hover:text-blue-600 px-4 py-2 hover:bg-gray-100 rounded-xl transition">
-                        Check Whois
-                    </Link>
+                        <Link href={`/whois?domain=${item.domain}`} className="text-sm font-bold w-full sm:w-auto text-center text-slate-500 hover:text-indigo-600 px-4 py-2.5 bg-slate-50 hover:bg-indigo-50 rounded-xl transition border border-slate-100">
+                            Check Whois
+                        </Link>
                     )}
                 </div>
                 ))}
             </div>
-            )}
+          )}
         </div>
       </section>
 
       {/* --- ALL TOOLS GRID SECTION --- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
         <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Free Tools</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto text-lg">Daily essentials for SEO experts, developers, and entrepreneurs.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-4">Explore Premium Tools</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg">Powerful, fast, and completely free tools for developers, SEO experts, and founders.</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool, index) => (
             <Link key={index} href={tool.link} className="block group h-full">
-                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition duration-300 h-full flex flex-col items-start gap-4 relative overflow-hidden group-hover:-translate-y-1">
-                    <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-2 group-hover:scale-110 transition duration-300">
+                <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:border-indigo-100 transition duration-300 h-full flex flex-col items-start relative overflow-hidden group-hover:-translate-y-1">
+                    
+                    {/* Badge */}
+                    {tool.badge && (
+                        <span className={`absolute top-6 right-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            tool.badge.includes('New') ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-orange-50 text-orange-600 border border-orange-100'
+                        }`}>
+                            {tool.badge}
+                        </span>
+                    )}
+
+                    <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-indigo-50 transition duration-300">
                         {tool.icon}
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition">{tool.name}</h3>
-                        <p className="text-gray-500 leading-relaxed">{tool.desc}</p>
-                    </div>
-                    <div className="mt-auto pt-4 flex items-center text-sm font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        Open Tool <ArrowRight size={16} className="ml-1" />
+                    
+                    <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition tracking-tight">{tool.name}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed mb-6">{tool.desc}</p>
+                    
+                    <div className="mt-auto flex items-center text-sm font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        Launch Tool <ArrowRight size={16} className="ml-1" />
                     </div>
                 </div>
             </Link>
@@ -248,34 +284,30 @@ export default function HomePage() {
       </section>
 
       {/* --- SEO CONTENT SECTION --- */}
-      <section className="bg-white border-t border-gray-100 py-20 mt-10">
-        <div className="max-w-4xl mx-auto px-6 prose prose-blue prose-lg">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Why use NameDotify?</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 mb-10">
+        <div className="bg-indigo-600 rounded-[3rem] p-10 md:p-16 text-center shadow-2xl shadow-indigo-200 relative overflow-hidden">
+            {/* Background design elements */}
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-cyan-400 opacity-20 rounded-full blur-3xl"></div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose text-center">
-                <div className="p-6 bg-gray-50 rounded-2xl">
-                    <div className="flex justify-center mb-4"><Zap className="text-yellow-500" size={32}/></div>
-                    <h3 className="font-bold text-lg mb-2">Lightning Fast</h3>
-                    <p className="text-gray-500 text-sm">Real-time data directly from registries without caching delays.</p>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 relative z-10 tracking-tight">Why rely on NameDotify?</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center relative z-10 mt-12">
+                <div className="p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/10">
+                    <div className="flex justify-center mb-4"><Zap className="text-yellow-300" size={32}/></div>
+                    <h3 className="font-bold text-white text-xl mb-2">Lightning Fast</h3>
+                    <p className="text-indigo-100 text-sm leading-relaxed">Direct API integrations ensure real-time data without annoying caching delays.</p>
                 </div>
-                <div className="p-6 bg-gray-50 rounded-2xl">
-                    <div className="flex justify-center mb-4"><Shield className="text-green-500" size={32}/></div>
-                    <h3 className="font-bold text-lg mb-2">Privacy First</h3>
-                    <p className="text-gray-500 text-sm">We respect your data. No tracking or storing of your search queries.</p>
+                <div className="p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/10">
+                    <div className="flex justify-center mb-4"><Shield className="text-green-300" size={32}/></div>
+                    <h3 className="font-bold text-white text-xl mb-2">Privacy First</h3>
+                    <p className="text-indigo-100 text-sm leading-relaxed">We respect your data. No tracking or storing of your search queries or IP addresses.</p>
                 </div>
-                <div className="p-6 bg-gray-50 rounded-2xl">
-                    <div className="flex justify-center mb-4"><Server className="text-blue-500" size={32}/></div>
-                    <h3 className="font-bold text-lg mb-2">Developer Ready</h3>
-                    <p className="text-gray-500 text-sm">Built with modern tech like Next.js for superior performance.</p>
+                <div className="p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/10">
+                    <div className="flex justify-center mb-4"><Server className="text-cyan-300" size={32}/></div>
+                    <h3 className="font-bold text-white text-xl mb-2">Pro Algorithms</h3>
+                    <p className="text-indigo-100 text-sm leading-relaxed">Powered by Next.js and industry-standard algorithms to give you accurate insights.</p>
                 </div>
-            </div>
-
-            <div className="mt-12 text-gray-600 text-center">
-                <p>
-                    Starting a new business begins with the perfect domain. <strong>NameDotify</strong> helps you discover available names, 
-                    analyze competitors with <strong>Whois</strong>, and set up your brand with our <strong>Email Signature Generator</strong>. 
-                    All tools are 100% free and easy to use.
-                </p>
             </div>
         </div>
       </section>

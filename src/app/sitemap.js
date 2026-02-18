@@ -13,8 +13,12 @@ export default function sitemap() {
     '/password',
     '/hosting',
     '/status',
-    '/fonts-generator', // Corrected path
-    '/generator',       // Name Generator
+    '/fonts-generator', 
+    '/generator',       
+    '/mockup',          // Added: Device Mockup Studio
+    '/website-speed',   // Added: Website Speed Checker
+    '/speed-test',      // Added: Internet Speed Test
+    '/reverse-ip',      // Added: Reverse IP Lookup
     '/about',
     '/contact',
     '/privacy',

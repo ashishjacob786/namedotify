@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { 
-  Code2, Play, FileCode, Paintbucket, Terminal, 
+  Code2, Play, FileCode, PaintBucket, Terminal, 
   Download, RefreshCw, Layout, Monitor, 
   CheckCircle, Zap, Shield, Blocks
 } from 'lucide-react';
@@ -10,14 +10,14 @@ export default function EditorClient() {
   const [activeTab, setActiveTab] = useState('html');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Default Code Template (A beautiful glowing button)
+  // Default Code Template
   const [htmlCode, setHtmlCode] = useState('<div class="container">\n  <h1>Welcome to NameDotify Studio</h1>\n  <button id="magicBtn">Click for Magic</button>\n</div>');
   const [cssCode, setCssCode] = useState('body {\n  background: #0f172a;\n  color: white;\n  font-family: sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n  margin: 0;\n}\n\n.container {\n  text-align: center;\n}\n\nbutton {\n  background: #6366f1;\n  color: white;\n  border: none;\n  padding: 12px 24px;\n  font-size: 16px;\n  border-radius: 8px;\n  cursor: pointer;\n  transition: all 0.3s;\n}\n\nbutton:hover {\n  background: #4f46e5;\n  box-shadow: 0 0 15px #6366f1;\n  transform: translateY(-2px);\n}');
   const [jsCode, setJsCode] = useState('const btn = document.getElementById("magicBtn");\n\nbtn.addEventListener("click", () => {\n  btn.innerText = "Magic Initiated! 🚀";\n  btn.style.background = "#10b981";\n  btn.style.boxShadow = "0 0 20px #10b981";\n  \n  setTimeout(() => {\n    btn.innerText = "Click for Magic";\n    btn.style.background = "#6366f1";\n    btn.style.boxShadow = "none";\n  }, 2000);\n});');
 
   const [srcDoc, setSrcDoc] = useState('');
 
-  // Debounce logic: Update iframe 500ms after user stops typing
+  // Debounce logic
   useEffect(() => {
     const timeout = setTimeout(() => {
       setSrcDoc(`
@@ -39,7 +39,7 @@ export default function EditorClient() {
     return () => clearTimeout(timeout);
   }, [htmlCode, cssCode, jsCode]);
 
-  // Support "Tab" key indentation in textarea
+  // Support "Tab" key indentation
   const handleKeyDown = (e, codeType) => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -53,14 +53,12 @@ export default function EditorClient() {
       if (codeType === 'css') setCssCode(newValue);
       if (codeType === 'js') setJsCode(newValue);
 
-      // Move cursor after the inserted spaces
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + 2;
       }, 0);
     }
   };
 
-  // Download code as index.html
   const handleDownload = () => {
     const content = `
 <!DOCTYPE html>
@@ -147,7 +145,7 @@ export default function EditorClient() {
                             <FileCode size={16}/> index.html
                         </button>
                         <button onClick={() => setActiveTab('css')} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-bold border-b-2 transition ${activeTab === 'css' ? 'border-blue-500 text-blue-400 bg-[#0d1117]' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>
-                            <Paintbucket size={16}/> style.css
+                            <PaintBucket size={16}/> style.css
                         </button>
                         <button onClick={() => setActiveTab('js')} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-bold border-b-2 transition ${activeTab === 'js' ? 'border-yellow-500 text-yellow-400 bg-[#0d1117]' : 'border-transparent text-slate-500 hover:text-slate-300'}`}>
                             <Terminal size={16}/> script.js

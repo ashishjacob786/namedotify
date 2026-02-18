@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { 
   Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, 
   CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, 
-  Key, Type, Wifi, Gauge, Rocket 
+  Key, Type, Wifi, Gauge, Rocket, Layers 
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -48,20 +48,14 @@ export default function HomePage() {
     }, 1000);
   };
 
-  // ✅ UPDATED TOOLS LIST (14 Tools Total)
+  // ✅ UPDATED TOOLS LIST (Now with Mockup Studio)
   const tools = [
     { 
-      name: 'Business Name Generator', 
-      icon: <Zap className="w-8 h-8 text-purple-500" />, 
-      desc: 'AI-powered tool to generate creative and catchy brand names.', 
-      link: '/generator',
-      badge: 'Popular'
-    },
-    { 
-      name: 'Whois Lookup', 
-      icon: <Database className="w-8 h-8 text-blue-500" />, 
-      desc: 'Instantly check domain ownership, age, registrar, and expiry dates.', 
-      link: '/whois' 
+      name: 'Device Mockup Studio', 
+      icon: <Layers className="w-8 h-8 text-rose-500" />, 
+      desc: 'Create beautiful 3D device mockups for your apps and websites instantly.', 
+      link: '/mockup',
+      badge: 'Hot'
     },
     { 
       name: 'Website Speed Checker', 
@@ -83,6 +77,19 @@ export default function HomePage() {
       desc: 'Discover all domains hosted on a single IP address. Essential for OSINT.', 
       link: '/reverse-ip',
       badge: 'Pro'
+    },
+    { 
+      name: 'Business Name Generator', 
+      icon: <Zap className="w-8 h-8 text-purple-500" />, 
+      desc: 'AI-powered tool to generate creative and catchy brand names.', 
+      link: '/generator',
+      badge: 'Popular'
+    },
+    { 
+      name: 'Whois Lookup', 
+      icon: <Database className="w-8 h-8 text-blue-500" />, 
+      desc: 'Instantly check domain ownership, age, registrar, and expiry dates.', 
+      link: '/whois' 
     },
     { 
       name: 'Pro QR Studio', 
@@ -145,7 +152,7 @@ export default function HomePage() {
       
       {/* Client SEO Tags */}
       <title>NameDotify | Free Webmaster Tools, Whois, Speed Test & More</title>
-      <meta name="description" content="Access 14+ free premium web tools: Whois Lookup, Website Speed Checker, Reverse IP, AI Name Generator, QR Studio, and more." />
+      <meta name="description" content="Access 15+ free premium web tools: Device Mockup Studio, Whois Lookup, Website Speed Checker, Reverse IP, AI Name Generator, and more." />
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -261,7 +268,9 @@ export default function HomePage() {
                     {/* Badge */}
                     {tool.badge && (
                         <span className={`absolute top-6 right-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            tool.badge.includes('New') ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-orange-50 text-orange-600 border border-orange-100'
+                            tool.badge.includes('Hot') ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                            tool.badge.includes('New') ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 
+                            'bg-orange-50 text-orange-600 border border-orange-100'
                         }`}>
                             {tool.badge}
                         </span>

@@ -1,117 +1,150 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Users, Eye, ArrowUpRight, MonitorSmartphone, Link as LinkIcon, Activity } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Users, Globe, Link as LinkIcon, Activity, ArrowUpRight, BarChart3, Loader2, Eye, MonitorSmartphone, Layers } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState('7'); 
+  const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/analytics')
-      .then(res => res.json())
-      .then(d => {
-        setData(d);
-        setLoading(false);
-      });
-  }, []);
+    fetchDashboardData();
+  }, [filter]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-blue-600"><Activity className="animate-spin" size={40} /></div>;
-  if (!data) return <div className="text-center mt-20">Error loading data.</div>;
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/analytics?days=${filter}`);
+      if (res.status === 401) { router.push('/admin/login'); return; }
+      const json = await res.json();
+      setData(json);
+    } catch (error) { console.error("Failed to load analytics"); } 
+    finally { setIsLoading(false); }
+  };
+
+  if (isLoading && !data) return (
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-blue-600">
+      <Loader2 className="animate-spin mb-4" size={48} />
+      <h2 className="text-xl font-bold text-gray-700">Loading Analytics Engine...</h2>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 pb-24 pt-28 font-sans">
-      <div className="max-w-7xl mx-auto">
-        
-        <header className="mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Analytics Dashboard</h1>
-            <p className="text-gray-500">Live traffic overview for NameDotify (Last 30 Days)</p>
-        </header>
+    <div className="min-h-screen bg-slate-50 pb-12">
+      {/* Top Navbar & Filter */}
+      <div className="bg-slate-900 text-white px-8 py-6 shadow-lg">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
+              <BarChart3 className="text-blue-500" size={32} /> Overview Dashboard
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">Live traffic, devices & referral insights.</p>
+          </div>
+          <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
+            {['7', '30', '90'].map((days) => (
+              <button key={days} onClick={() => setFilter(days)}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filter === days ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-700'}`}>
+                Last {days} Days
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        {/* --- Top Stat Cards --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div className="p-4 bg-blue-50 text-blue-600 rounded-xl"><Eye size={32} /></div>
-                <div>
-                    <p className="text-sm font-bold text-gray-400 uppercase">Total Page Views</p>
-                    <h2 className="text-4xl font-black text-gray-900">{data.totalViews.toLocaleString()}</h2>
-                </div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div className="p-4 bg-emerald-50 text-emerald-600 rounded-xl"><Users size={32} /></div>
-                <div>
-                    <p className="text-sm font-bold text-gray-400 uppercase">Unique Visitors</p>
-                    <h2 className="text-4xl font-black text-gray-900">{data.uniqueVisitors.toLocaleString()}</h2>
-                </div>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        
+        {/* TOP METRICS CARDS (Includes Unique Visitors) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><Eye size={100} /></div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Total Page Views</p>
+            <h2 className="text-4xl font-black text-gray-900">{data?.totalViews?.toLocaleString() || 0}</h2>
+          </div>
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><Users size={100} /></div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Unique Visitors</p>
+            <h2 className="text-4xl font-black text-emerald-600">{data?.uniqueVisitors?.toLocaleString() || 0}</h2>
+          </div>
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-center">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Top Country</p>
+            <h2 className="text-2xl font-black text-gray-900 truncate flex items-center gap-2"><Globe className="text-blue-500" size={24}/> {data?.topCountry ? data.topCountry[0] : 'No Data'}</h2>
+          </div>
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-center">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Top Source</p>
+            <h2 className="text-2xl font-black text-gray-900 truncate flex items-center gap-2"><LinkIcon className="text-purple-500" size={24}/> {data?.topReferrer ? data.topReferrer[0] : 'Direct'}</h2>
+          </div>
         </div>
 
-        {/* --- Main Chart (Traffic over time) --- */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-            <h3 className="font-bold text-gray-800 mb-6 text-lg">Traffic Over Time</h3>
-            <div className="h-72 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickMargin={10} />
-                        <YAxis stroke="#94a3b8" fontSize={12} />
-                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                        <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
-                    </LineChart>
-                </ResponsiveContainer>
-            </div>
+        {/* MAIN CHART */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 mb-8">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6"><Activity className="text-blue-500"/> Traffic Over Time</h3>
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data?.chartData || []}>
+                <defs>
+                  <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient>
+                  <linearGradient id="colorUnique" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
+                <RechartsTooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+                <Area type="monotone" name="Total Views" dataKey="views" stroke="#3b82f6" strokeWidth={4} fill="url(#colorViews)" />
+                <Area type="monotone" name="Unique Visitors" dataKey="unique" stroke="#10b981" strokeWidth={3} fill="url(#colorUnique)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* --- Top Pages --- */}
-            <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-4 text-lg flex items-center gap-2"><ArrowUpRight size={18}/> Top Pages / Tools</h3>
-                <div className="space-y-3">
-                    {data.topPages.map((page, i) => (
-                        <div key={i} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition">
-                            <span className="font-medium text-gray-600 truncate pr-4">{page.url}</span>
-                            <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">{page.views}</span>
-                        </div>
-                    ))}
-                    {data.topPages.length === 0 && <p className="text-gray-400 text-sm">No data yet. Visit some pages!</p>}
+          
+          {/* TOP PAGES (From old code) */}
+          <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><Layers className="text-indigo-500" size={20}/> Top Pages / Tools</h3>
+            <div className="space-y-3">
+                {data?.topPages?.length > 0 ? data.topPages.map((page, i) => (
+                    <div key={i} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition border border-transparent hover:border-slate-100">
+                        <span className="font-bold text-gray-700 truncate pr-4">{page.url}</span>
+                        <span className="font-black text-indigo-700 bg-indigo-50 px-4 py-1.5 rounded-lg text-sm">{page.views} views</span>
+                    </div>
+                )) : <p className="text-sm text-gray-400">No page data yet.</p>}
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* REFERRALS */}
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><LinkIcon className="text-purple-500" size={20}/> Traffic Sources</h3>
+              <div className="space-y-4">
+                {data?.referrersList?.length > 0 ? data.referrersList.map((ref, idx) => (
+                  <div key={idx} className="flex justify-between items-center group">
+                    <span className="text-gray-700 font-medium truncate pr-4">{ref[0]}</span>
+                    <span className="bg-purple-50 text-purple-700 font-bold px-3 py-1 rounded-lg text-sm">{ref[1]}</span>
+                  </div>
+                )) : <p className="text-sm text-gray-400">No referrers tracked.</p>}
+              </div>
+            </div>
+
+            {/* DEVICES (From old code) */}
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><MonitorSmartphone className="text-orange-500" size={20}/> Devices</h3>
+                <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data?.devicesList || []}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}/>
+                            <Bar dataKey="value" fill="#f97316" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* --- Sidebar Stats (Referrals & Devices) --- */}
-            <div className="space-y-8">
-                
-                {/* Referrals */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-gray-800 mb-4 text-lg flex items-center gap-2"><LinkIcon size={18}/> Traffic Sources</h3>
-                    <div className="space-y-3">
-                        {data.referrers.map((ref, i) => (
-                            <div key={i} className="flex justify-between items-center">
-                                <span className="font-medium text-gray-600">{ref.source}</span>
-                                <span className="font-bold text-gray-900">{ref.views}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Devices Chart */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-gray-800 mb-4 text-lg flex items-center gap-2"><MonitorSmartphone size={18}/> Devices</h3>
-                    <div className="h-48 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data.devices}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none' }}/>
-                                <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-            </div>
+          </div>
         </div>
-
       </div>
     </div>
   );

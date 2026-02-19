@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'; // जो फाइल हमने पहले बनाई थी
+import prisma from '@/lib/prisma'; 
 
 export async function POST(req) {
   try {
     const data = await req.json();
+
+    // 👉 ADVANCED: Country ढूँढना (Cloudflare या Vercel के Headers से)
+    let country = req.headers.get('cf-ipcountry') || 
+                  req.headers.get('x-vercel-ip-country') || 
+                  'Unknown';
+
+    // अगर कोई खुद से (localhost) खोल रहा है
+    if (country === 'Unknown' || !country) country = 'India';
 
     // डेटाबेस में नई एंट्री सेव करें
     await prisma.pageView.create({
@@ -13,7 +21,7 @@ export async function POST(req) {
         referrer: data.referrer || 'Direct',
         eventType: data.eventType || 'pageview',
         eventData: data.eventData || null,
-        country: data.country || 'Unknown', // (हम इसे बाद में IP से ट्रैक कर सकते हैं)
+        country: country, // ✅ अब Country असली IP एड्रेस से आ रही है
         device: data.device || 'Desktop',
         browser: data.browser || 'Unknown',
         os: data.os || 'Unknown',

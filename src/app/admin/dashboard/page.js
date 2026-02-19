@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
+    <div className="min-h-screen bg-slate-50 pb-12 pt-16 sm:pt-20">
       {/* Top Navbar & Filter */}
       <div className="bg-slate-900 text-white px-8 py-6 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">

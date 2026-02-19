@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Users, Globe, Link as LinkIcon, Activity, ArrowUpRight, BarChart3, Loader2, Eye, MonitorSmartphone, Layers } from 'lucide-react';
+import { Users, Globe, Link as LinkIcon, Activity, BarChart3, Loader2, Eye, MonitorSmartphone, Layers } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
-        {/* TOP METRICS CARDS (Includes Unique Visitors) */}
+        {/* TOP METRICS CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group">
             <div className="absolute -top-4 -right-4 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><Eye size={100} /></div>
@@ -101,20 +101,42 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* TOP PAGES (From old code) */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><Layers className="text-indigo-500" size={20}/> Top Pages / Tools</h3>
-            <div className="space-y-3">
-                {data?.topPages?.length > 0 ? data.topPages.map((page, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition border border-transparent hover:border-slate-100">
-                        <span className="font-bold text-gray-700 truncate pr-4">{page.url}</span>
-                        <span className="font-black text-indigo-700 bg-indigo-50 px-4 py-1.5 rounded-lg text-sm">{page.views} views</span>
-                    </div>
-                )) : <p className="text-sm text-gray-400">No page data yet.</p>}
+          {/* LEFT COLUMN (Pages & Devices) */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* TOP PAGES */}
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><Layers className="text-indigo-500" size={20}/> Top Pages / Tools</h3>
+              <div className="space-y-3">
+                  {data?.topPages?.length > 0 ? data.topPages.map((page, i) => (
+                      <div key={i} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition border border-transparent hover:border-slate-100">
+                          <span className="font-bold text-gray-700 truncate pr-4">{page.url}</span>
+                          <span className="font-black text-indigo-700 bg-indigo-50 px-4 py-1.5 rounded-lg text-sm">{page.views} views</span>
+                      </div>
+                  )) : <p className="text-sm text-gray-400">No page data yet.</p>}
+              </div>
             </div>
+
+            {/* DEVICES */}
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><MonitorSmartphone className="text-orange-500" size={20}/> Devices</h3>
+                <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data?.devicesList || []}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}/>
+                            <Bar dataKey="value" fill="#f97316" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+            
           </div>
 
+          {/* RIGHT COLUMN (Referrals & Countries) */}
           <div className="space-y-8">
+            
             {/* REFERRALS */}
             <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><LinkIcon className="text-purple-500" size={20}/> Traffic Sources</h3>
@@ -128,19 +150,17 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* DEVICES (From old code) */}
+            {/* ✅ TOP COUNTRIES */}
             <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><MonitorSmartphone className="text-orange-500" size={20}/> Devices</h3>
-                <div className="h-48 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data?.devicesList || []}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                            <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}/>
-                            <Bar dataKey="value" fill="#f97316" radius={[6, 6, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6"><Globe className="text-emerald-500" size={20}/> Top Countries</h3>
+              <div className="space-y-4">
+                {data?.countriesList?.length > 0 ? data.countriesList.map((country, idx) => (
+                  <div key={idx} className="flex justify-between items-center group">
+                    <span className="text-gray-700 font-medium truncate pr-4">{country[0]}</span>
+                    <span className="bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">{country[1]}</span>
+                  </div>
+                )) : <p className="text-sm text-gray-400">No countries tracked.</p>}
+              </div>
             </div>
 
           </div>

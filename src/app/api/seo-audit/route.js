@@ -3,12 +3,11 @@ import * as cheerio from 'cheerio';
 
 export async function POST(req) {
   try {
-    const { url, mode } = await req.json();
+    const { url, mode, action } = await req.json();
 
-    // 1. वेबसाइट का HTML लाइव फेच करना
     const response = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NameDotifyBot/1.0)' },
-      next: { revalidate: 0 } // कैश नहीं करना है
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NameDotifyBot/2.0)' },
+      next: { revalidate: 0 }
     });
 
     if (!response.ok) {
@@ -18,89 +17,63 @@ export async function POST(req) {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // 2. SEO एनालिटिक्स का लॉजिक
-    let errors = 0;
-    let warnings = 0;
-    let passed = 0;
-    let issues = [];
+    // 🚀 ADVANCED CRAWLER: वेबसाइट के अंदर के लिंक्स ढूँढना (अगर Entire Website सिलेक्टेड है)
+    if (action === 'get_links') {
+      const baseUrl = new URL(url).origin;
+      const links = new Set([url]); // होमपेज सबसे पहले
+      
+      $('a').each((i, el) => {
+        let href = $(el).attr('href');
+        if (href) {
+          // सिर्फ उसी डोमेन के लिंक्स उठाना (बाहर के नहीं)
+          if (href.startsWith('/') && !href.startsWith('//')) {
+            links.add(baseUrl + href);
+          } else if (href.startsWith(baseUrl)) {
+            links.add(href);
+          }
+        }
+      });
+      
+      // सर्वर क्रैश न हो इसलिए एक बार में मैक्सिमम 10 पेजेस स्कैन करेंगे
+      return NextResponse.json({ success: true, links: Array.from(links).slice(0, 10) });
+    }
 
-    // 👉 A. Title Tag Check
+    // 🚀 SEO ANALYSIS (Single Page Analysis)
+    let errors = 0; let warnings = 0; let passed = 0; let issues = [];
+
+    // Title
     const title = $('title').text();
-    if (!title) {
-      errors++;
-      issues.push({ type: 'error', text: 'Missing Title Tag' });
-    } else if (title.length < 10 || title.length > 70) {
-      warnings++;
-      issues.push({ type: 'warning', text: `Title length is suboptimal (${title.length} chars). Best is 50-60.` });
-    } else {
-      passed++;
-      issues.push({ type: 'success', text: `Perfect Title: "${title}"` });
-    }
+    if (!title) { errors++; issues.push({ type: 'error', text: `Missing Title Tag on ${url}` }); }
+    else if (title.length < 10 || title.length > 70) { warnings++; }
+    else { passed++; }
 
-    // 👉 B. Meta Description Check
+    // Meta
     const metaDesc = $('meta[name="description"]').attr('content');
-    if (!metaDesc) {
-      errors++;
-      issues.push({ type: 'error', text: 'Missing Meta Description' });
-    } else if (metaDesc.length < 50 || metaDesc.length > 160) {
-      warnings++;
-      issues.push({ type: 'warning', text: `Meta description length is suboptimal (${metaDesc.length} chars).` });
-    } else {
-      passed++;
-      issues.push({ type: 'success', text: 'Meta description is present and optimal length.' });
-    }
+    if (!metaDesc) { errors++; issues.push({ type: 'error', text: `Missing Meta Description on ${url}` }); }
+    else { passed++; }
 
-    // 👉 C. H1 Tag Check
+    // H1
     const h1Count = $('h1').length;
-    if (h1Count === 0) {
-      errors++;
-      issues.push({ type: 'error', text: 'Missing H1 Tag. Every page needs exactly one H1.' });
-    } else if (h1Count > 1) {
-      warnings++;
-      issues.push({ type: 'warning', text: `Multiple H1 tags found (${h1Count}). Best practice is exactly one.` });
-    } else {
-      passed++;
-      issues.push({ type: 'success', text: `Perfect! Exactly one H1 tag found: "${$('h1').first().text().substring(0, 30)}..."` });
-    }
+    if (h1Count === 0) { errors++; issues.push({ type: 'error', text: `Missing H1 Tag on ${url}` }); }
+    else if (h1Count > 1) { warnings++; issues.push({ type: 'warning', text: `Multiple H1 tags found on ${url}` }); }
+    else { passed++; }
 
-    // 👉 D. Image Alt Tags Check
+    // Images Alt
     const images = $('img');
     let missingAltCount = 0;
-    images.each((i, img) => {
-      if (!$(img).attr('alt')) missingAltCount++;
-    });
+    images.each((i, img) => { if (!$(img).attr('alt')) missingAltCount++; });
+    if (missingAltCount > 0) { warnings++; issues.push({ type: 'warning', text: `${missingAltCount} images missing ALT on ${url}` }); }
+    else if (images.length > 0) { passed++; }
 
-    if (missingAltCount > 0) {
-      warnings++;
-      issues.push({ type: 'warning', text: `${missingAltCount} images are missing ALT attributes.` });
-    } else if (images.length > 0) {
-      passed++;
-      issues.push({ type: 'success', text: 'All images have proper ALT attributes.' });
-    }
+    // SSL
+    if (url.startsWith('https://')) { passed++; } else { errors++; issues.push({ type: 'error', text: `No HTTPS on ${url}` }); }
 
-    // 👉 E. SSL (HTTPS) Check
-    if (url.startsWith('https://')) {
-      passed++;
-      issues.push({ type: 'success', text: 'Website uses secure HTTPS.' });
-    } else {
-      errors++;
-      issues.push({ type: 'error', text: 'Website does NOT use secure HTTPS. Very bad for SEO.' });
-    }
-
-    // 3. Health Score Calculate करना
     let healthScore = 100 - (errors * 15) - (warnings * 5);
-    if (healthScore < 0) healthScore = 0;
-    if (healthScore > 100) healthScore = 100;
+    if (healthScore < 0) healthScore = 0; if (healthScore > 100) healthScore = 100;
 
-    // डेटा को फ्रंटएंड पर भेजना
     return NextResponse.json({
       success: true,
-      data: {
-        healthScore,
-        mode,
-        metrics: { errors, warnings, passed },
-        issues
-      }
+      data: { healthScore, metrics: { errors, warnings, passed }, issues }
     });
 
   } catch (error) {

@@ -13,7 +13,7 @@ export default function AdminLogin() {
     e.preventDefault();
     
     // ✅ यहाँ अपना ID और Password चेक हो रहा है
-    if (username === 'admin' && password === 'Ashish@2026') {
+    if (username === 'ashishjacob786@gmail.com' && password === 'Ashish@jacoB123') {
       // 24 घंटे के लिए ब्राउज़र में पास (Cookie) सेव कर दो
       document.cookie = "adminAuth=true; path=/; max-age=86400"; 
       

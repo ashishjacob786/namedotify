@@ -3,29 +3,26 @@ import { NextResponse } from 'next/server';
 export function middleware(req) {
   const url = req.nextUrl;
 
-  if (url.pathname.startsWith('/admin')) {
-    const basicAuth = req.headers.get('authorization');
+  // 1. अगर कोई सीधा Dashboard खोलने की कोशिश करे
+  if (url.pathname.startsWith('/admin/dashboard')) {
+    const authCookie = req.cookies.get('adminAuth');
 
-    if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const [user, pwd] = atob(authValue).split(':');
-
-      if (user === 'admin' && pwd === 'Ashish@2026') {
-        const response = NextResponse.next();
-        
-        // ✅ TRIPLE LOCK: HTTP Header for ALL Search Engines
-        response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
-        return response;
-      }
+    // अगर उसके पास लॉगिन की चाबी (Cookie) नहीं है, तो उसे Login पेज पर फेंक दो
+    if (!authCookie || authCookie.value !== 'true') {
+      return NextResponse.redirect(new URL('/admin/login', req.url));
     }
 
-    return new NextResponse('Authentication required', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Secure Area"',
-        'X-Robots-Tag': 'noindex, nofollow', // लॉगिन पॉपअप को भी इंडेक्स होने से रोकेगा
-      },
-    });
+    // अगर चाबी है, तो डैशबोर्ड खुलने दो और SEO लॉक लगा दो
+    const response = NextResponse.next();
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+    return response;
+  }
+
+  // 2. लॉगिन पेज पर भी SEO लॉक लगा दो ताकि गूगल इसे सेव न करे
+  if (url.pathname.startsWith('/admin/login')) {
+    const response = NextResponse.next();
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+    return response;
   }
 
   return NextResponse.next();

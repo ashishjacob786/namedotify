@@ -129,7 +129,7 @@ export default function Navbar() {
             {/* ✅ DESKTOP ADMIN LOGIN BUTTON */}
             <div className="pl-4 border-l border-gray-200 ml-2">
               <a 
-                href="/admin/dashboard" 
+                href="/admin/login" 
                 className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
               >
                 <Lock size={14} />
@@ -194,7 +194,7 @@ export default function Navbar() {
                 {/* ✅ MOBILE ADMIN LOGIN BUTTON */}
                 <div className="mt-6 px-2">
                   <a 
-                    href="/admin/dashboard" 
+                    href="/admin/login" 
                     className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-xl transition shadow-sm"
                   >
                     <Lock size={18} /> Admin Login

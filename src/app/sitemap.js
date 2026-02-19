@@ -1,24 +1,31 @@
 export default function sitemap() {
   const baseUrl = 'https://namedotify.com';
 
-  // Add all your pages here
+  // Add all your pages here (Total 20 Tools + 4 Static Pages + Home)
   const routes = [
     '',
-    '/whois',
     '/dns',
-    '/qrcode',
-    '/signature',
-    '/ip',
-    '/ssl',
-    '/password',
+    '/fonts-generator',
+    '/generator',
     '/hosting',
+    '/ip',
+    '/live-editor',       // Added
+    '/malware-scanner',   // Added
+    '/mockup',
+    '/password',
+    '/qrcode',
+    '/reverse-ip',
+    '/schema-generator',  // Added
+    '/signature',
+    '/speed-test',
+    '/ssl',
     '/status',
-    '/fonts-generator', 
-    '/generator',       
-    '/mockup',          // Added: Device Mockup Studio
-    '/website-speed',   // Added: Website Speed Checker
-    '/speed-test',      // Added: Internet Speed Test
-    '/reverse-ip',      // Added: Reverse IP Lookup
+    '/utm-builder',       // Added
+    '/website-speed',
+    '/whois',
+    '/youtube-analyzer',  // Added
+    
+    // Static Pages
     '/about',
     '/contact',
     '/privacy',

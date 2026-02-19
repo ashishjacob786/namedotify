@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { 
   Search, Globe, Server, Shield, Activity, Database, Zap, Loader2, 
   CheckCircle, XCircle, ArrowRight, QrCode, Mail, MapPin, Lock, 
-  Key, Type, Wifi, Gauge, Rocket, Layers, Code2, Target, Blocks
+  Key, Type, Wifi, Gauge, Rocket, Layers, Code2, Target, Blocks,
+  ShieldAlert, Youtube
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -48,7 +49,7 @@ export default function HomePage() {
     }, 1000);
   };
 
-  // ✅ UPDATED TOOLS LIST (Now with 18 Tools)
+  // ✅ UPDATED TOOLS LIST (Now with all 20 Tools)
   const tools = [
     { 
       name: 'Device Mockup Studio', 
@@ -63,6 +64,20 @@ export default function HomePage() {
       desc: 'Write, test, and preview HTML, CSS, and JS code in a live workspace.', 
       link: '/live-editor',
       badge: 'New & Pro'
+    },
+    { 
+      name: 'YouTube SEO Analyzer', 
+      icon: <Youtube className="w-8 h-8 text-red-600" />, 
+      desc: 'Extract hidden tags, download HD thumbnails, and calculate engagement rate.', 
+      link: '/youtube-analyzer',
+      badge: 'Hot'
+    },
+    { 
+      name: 'Malware Scanner', 
+      icon: <ShieldAlert className="w-8 h-8 text-emerald-600" />, 
+      desc: 'Scan any URL for viruses, phishing, and dangerous software instantly.', 
+      link: '/malware-scanner',
+      badge: 'New'
     },
     { 
       name: 'Schema Generator', 
@@ -162,7 +177,7 @@ export default function HomePage() {
       name: 'Fancy Fonts Generator', 
       icon: <Type className="w-8 h-8 text-fuchsia-500" />, 
       desc: 'Generate stylish text and cool fonts for Instagram & Bio.', 
-      link: 'https://namedotify.com/fonts-generator' 
+      link: '/fonts-generator' 
     },
   ];
 
@@ -171,7 +186,7 @@ export default function HomePage() {
       
       {/* Client SEO Tags */}
       <title>NameDotify | Free Webmaster Tools, Whois, Speed Test & More</title>
-      <meta name="description" content="Access 18+ free premium web tools: Live Code Editor, Schema Generator, Device Mockups, Website Speed Checker, and more." />
+      <meta name="description" content="Access 20+ free premium web tools: Live Code Editor, Schema Generator, Device Mockups, Website Speed Checker, and more." />
       
       {/* Schema Injection */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

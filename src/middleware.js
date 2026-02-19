@@ -3,22 +3,25 @@ import { NextResponse } from 'next/server';
 export function middleware(req) {
   const url = req.nextUrl;
 
-  // 1. अगर कोई सीधा Dashboard खोलने की कोशिश करे
+  // ✅ नया कोड: अगर कोई सिर्फ /admin लिखे, तो उसे सीधा Login पर भेज दो
+  if (url.pathname === '/admin' || url.pathname === '/admin/') {
+    return NextResponse.redirect(new URL('/admin/login', req.url));
+  }
+
+  // 1. Dashboard को सिक्योर करने के लिए
   if (url.pathname.startsWith('/admin/dashboard')) {
     const authCookie = req.cookies.get('adminAuth');
 
-    // अगर उसके पास लॉगिन की चाबी (Cookie) नहीं है, तो उसे Login पेज पर फेंक दो
     if (!authCookie || authCookie.value !== 'true') {
       return NextResponse.redirect(new URL('/admin/login', req.url));
     }
 
-    // अगर चाबी है, तो डैशबोर्ड खुलने दो और SEO लॉक लगा दो
     const response = NextResponse.next();
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
     return response;
   }
 
-  // 2. लॉगिन पेज पर भी SEO लॉक लगा दो ताकि गूगल इसे सेव न करे
+  // 2. Login पेज को गूगल से छुपाने के लिए
   if (url.pathname.startsWith('/admin/login')) {
     const response = NextResponse.next();
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
@@ -29,5 +32,6 @@ export function middleware(req) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  // ✅ यहाँ '/admin' ऐड किया ताकि मिडलवेयर इसे भी मॉनिटर करे
+  matcher: ['/admin', '/admin/:path*'],
 };

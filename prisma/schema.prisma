@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PageView {
+  id          String   @id @default(uuid())
+  visitorId   String   
+  pageUrl     String   
+  referrer    String?  
+  eventType   String   @default("pageview") 
+  eventData   String?  
+  country     String?  
+  city        String?  
+  device      String?  
+  browser     String?  
+  os          String?  
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([pageUrl])
+  @@index([visitorId])
+}

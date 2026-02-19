@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Menu, X, LayoutGrid, ChevronDown, 
-  Search, ShieldCheck, Palette, Briefcase 
+  Search, ShieldCheck, Palette, Briefcase, Lock // ✅ Lock आइकॉन ऐड किया
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -125,6 +125,17 @@ export default function Navbar() {
                 </div>
               </div>
             ))}
+
+            {/* ✅ DESKTOP ADMIN LOGIN BUTTON */}
+            <div className="pl-4 border-l border-gray-200 ml-2">
+              <a 
+                href="/admin/dashboard" 
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
+              >
+                <Lock size={14} />
+                Admin
+              </a>
+            </div>
           </div>
 
           {/* --- MOBILE MENU BUTTON --- */}
@@ -179,6 +190,17 @@ export default function Navbar() {
                     </div>
                 </div>
                 ))}
+
+                {/* ✅ MOBILE ADMIN LOGIN BUTTON */}
+                <div className="mt-6 px-2">
+                  <a 
+                    href="/admin/dashboard" 
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-xl transition shadow-sm"
+                  >
+                    <Lock size={18} /> Admin Login
+                  </a>
+                </div>
+
             </div>
         </div>
       </div>

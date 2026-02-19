@@ -2,8 +2,6 @@ import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Tracker from '../components/Tracker'; 
-import Link from 'next/link'; // ✅ Link इम्पोर्ट किया
-import { Lock } from 'lucide-react'; // ✅ Icon इम्पोर्ट किया
 
 // ✅ GLOBAL SEO METADATA
 export const metadata = {
@@ -36,14 +34,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
         
+        {/* Tracker बैकग्राउंड में चलता रहेगा */}
         <Tracker /> 
-
-        {/* ✅ SLEEK TOP-BAR FOR ADMIN LOGIN */}
-        <div className="bg-slate-900 text-slate-300 py-1.5 px-4 sm:px-6 lg:px-8 text-xs font-medium flex justify-end tracking-wider relative z-50">
-            <Link href="/admin/dashboard" className="flex items-center gap-1.5 hover:text-white transition duration-200">
-                <Lock size={12} /> Admin Login
-            </Link>
-        </div>
         
         <Navbar />
         

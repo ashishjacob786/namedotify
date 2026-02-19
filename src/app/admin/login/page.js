@@ -7,24 +7,40 @@ export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
     
-    // ✅ आपका ID और Password
-    if (username === 'ashishjacob786@gmail.com' && password === 'Ashish@jacoB123') {
-      document.cookie = "adminAuth=true; path=/; max-age=86400"; 
-      router.push('/admin/dashboard');
-    } else {
-      setError('ACCESS DENIED: Invalid credentials');
+    try {
+      // ✅ अब पासवर्ड चेक करने का काम ब्राउज़र की जगह सर्वर (API) करेगा
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        router.push('/admin/dashboard');
+        router.refresh(); // Middleware को अपडेट करने के लिए
+      } else {
+        setError(data.message || 'ACCESS DENIED: Invalid credentials');
+      }
+    } catch (err) {
+      setError('SYSTEM ERROR: Secure Connection Failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-mono relative overflow-hidden">
       
-      {/* Background Grid Effect for Hacker Vibe */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:30px_30px] opacity-20 pointer-events-none"></div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
@@ -63,7 +79,6 @@ export default function AdminLogin() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  // ✅ यहाँ डार्क बैकग्राउंड और ब्राइट ग्रीन टेक्स्ट सेट किया है
                   className="focus:ring-1 focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-green-900/50 py-3 bg-[#050505] text-green-400 placeholder-green-900 outline-none border transition-all"
                   placeholder="Enter admin email..."
                 />
@@ -83,7 +98,6 @@ export default function AdminLogin() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  // ✅ यहाँ भी डार्क बैकग्राउंड और ब्राइट ग्रीन टेक्स्ट
                   className="focus:ring-1 focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-green-900/50 py-3 bg-[#050505] text-green-400 placeholder-green-900 outline-none border transition-all tracking-widest"
                   placeholder="••••••••"
                 />
@@ -93,9 +107,10 @@ export default function AdminLogin() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-green-500 text-sm font-bold text-black bg-green-500 hover:bg-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.6)] focus:outline-none transition-all uppercase tracking-widest"
+                disabled={isLoading}
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-green-500 text-sm font-bold text-black bg-green-500 hover:bg-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.6)] disabled:opacity-50 focus:outline-none transition-all uppercase tracking-widest"
               >
-                Execute <ArrowRight size={18} />
+                {isLoading ? 'Decrypting...' : 'Execute'} <ArrowRight size={18} />
               </button>
             </div>
           </form>

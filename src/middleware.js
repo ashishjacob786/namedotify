@@ -3,16 +3,17 @@ import { NextResponse } from 'next/server';
 export function middleware(req) {
   const url = req.nextUrl;
 
-  // ✅ नया कोड: अगर कोई सिर्फ /admin लिखे, तो उसे सीधा Login पर भेज दो
   if (url.pathname === '/admin' || url.pathname === '/admin/') {
     return NextResponse.redirect(new URL('/admin/login', req.url));
   }
 
-  // 1. Dashboard को सिक्योर करने के लिए
+  // ✅ Dashboard Security
   if (url.pathname.startsWith('/admin/dashboard')) {
-    const authCookie = req.cookies.get('adminAuth');
+    const authCookie = req.cookies.get('adminAuthToken'); // नई Secure Cookie
+    const expectedToken = process.env.ADMIN_SECURE_TOKEN || 'secure_token_fallback';
 
-    if (!authCookie || authCookie.value !== 'true') {
+    // अगर टोकन नहीं है या मैच नहीं कर रहा है
+    if (!authCookie || authCookie.value !== expectedToken) {
       return NextResponse.redirect(new URL('/admin/login', req.url));
     }
 
@@ -21,7 +22,6 @@ export function middleware(req) {
     return response;
   }
 
-  // 2. Login पेज को गूगल से छुपाने के लिए
   if (url.pathname.startsWith('/admin/login')) {
     const response = NextResponse.next();
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
@@ -32,6 +32,5 @@ export function middleware(req) {
 }
 
 export const config = {
-  // ✅ यहाँ '/admin' ऐड किया ताकि मिडलवेयर इसे भी मॉनिटर करे
   matcher: ['/admin', '/admin/:path*'],
 };

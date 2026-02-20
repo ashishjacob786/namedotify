@@ -20,6 +20,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-qrcode-logo": "^4.0.0",
+    "react-quill-new": "^3.8.3",
     "recharts": "^3.7.0",
     "whois-json": "^2.0.4"
   },

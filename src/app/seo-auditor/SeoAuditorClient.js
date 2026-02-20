@@ -22,11 +22,57 @@ export default function SeoAuditorClient() {
     "Finalizing SEO Audit..."
   ];
 
-  const startAudit = async (e) => {
-    e.preventDefault();
-    if (!url) return;
+  // 🚀 WEBMCP (Model Context Protocol) SETUP FOR AI AGENTS
+  useEffect(() => {
+    // चेक करें कि ब्राउज़र WebMCP सपोर्ट करता है या नहीं
+    if (typeof window !== 'undefined' && window.navigator && 'modelContext' in window.navigator) {
+      try {
+        window.navigator.modelContext.registerTool({
+          name: "run_seo_audit",
+          description: "Runs an advanced SEO audit on a given URL using NameDotify.",
+          parameters: {
+            type: "object",
+            properties: {
+              targetUrl: { type: "string", description: "The full URL of the website to audit (e.g., https://example.com)" },
+              scanType: { type: "string", enum: ["single", "entire"], description: "Choose 'single' for one page, or 'entire' for a deep sitemap crawl." }
+            },
+            required: ["targetUrl"]
+          },
+          // जब AI Agent इसे कॉल करेगा, तो यह फंक्शन चलेगा
+          handler: async (params) => {
+            console.log("🤖 AI Agent initiated SEO Audit for:", params.targetUrl);
+            const aiMode = params.scanType || 'single';
+            
+            // AI से मिले डेटा को स्टेट में सेट करें
+            setUrl(params.targetUrl);
+            setScanMode(aiMode);
+            
+            // AI के लिए सीधे स्कैन चालू करें (बिना बटन क्लिक के)
+            startAudit(null, params.targetUrl, aiMode);
 
-    let targetUrl = url;
+            return { 
+              status: "success", 
+              message: `SEO Audit initialized for ${params.targetUrl}. The NameDotify UI is now actively processing the deep scan.` 
+            };
+          }
+        });
+        console.log("✅ WebMCP Protocol Active: SEO Tool is now Agent-Ready!");
+      } catch (err) {
+        console.error("WebMCP Registration Failed:", err);
+      }
+    }
+  }, []);
+
+  // 🤖 AI और Human दोनों के लिए स्मार्ट ऑडिट फंक्शन
+  const startAudit = async (e, overrideUrl = null, overrideMode = null) => {
+    if (e) e.preventDefault(); // अगर इंसान ने क्लिक किया है
+    
+    const currentUrl = overrideUrl || url;
+    const currentMode = overrideMode || scanMode;
+
+    if (!currentUrl) return;
+
+    let targetUrl = currentUrl;
     if (!targetUrl.startsWith('http')) targetUrl = 'https://' + targetUrl;
 
     setScanState('scanning');
@@ -38,7 +84,7 @@ export default function SeoAuditorClient() {
       let urlsToScan = [targetUrl];
       
       // 1. अगर Entire Website है, तो पहले सारे लिंक्स निकालो
-      if (scanMode === 'entire') {
+      if (currentMode === 'entire') {
         setCurrentActionText('Extracting sitemap and internal links...');
         const linkRes = await fetch('/api/seo-audit', {
           method: 'POST',
@@ -55,14 +101,14 @@ export default function SeoAuditorClient() {
       let aggregatedData = { healthScore: 0, errors: 0, warnings: 0, passed: 0, issues: [] };
       
       for (let i = 0; i < urlsToScan.length; i++) {
-        const currentUrl = urlsToScan[i];
-        setCurrentActionText(`Scanning URL (${i+1}/${urlsToScan.length}): ${currentUrl}`);
+        const urlToAnalyze = urlsToScan[i];
+        setCurrentActionText(`Scanning URL (${i+1}/${urlsToScan.length}): ${urlToAnalyze}`);
         setProgress(((i) / urlsToScan.length) * 50); // स्कैनिंग 50% तक जाएगी
 
         const scanRes = await fetch('/api/seo-audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: currentUrl, action: 'analyze' }),
+          body: JSON.stringify({ url: urlToAnalyze, action: 'analyze' }),
         });
         const scanData = await scanRes.json();
 
@@ -101,7 +147,7 @@ export default function SeoAuditorClient() {
             
             setResults({
               healthScore: aggregatedData.healthScore,
-              mode: scanMode,
+              mode: currentMode,
               metrics: { errors: aggregatedData.errors, warnings: aggregatedData.warnings, passed: aggregatedData.passed },
               issues: formattedIssues
             });
@@ -109,7 +155,7 @@ export default function SeoAuditorClient() {
             setProgress(100);
           }, 2000);
         }
-      }, 2500); // हर 2.5 सेकंड में मैसेज बदलेगा (Total ~20 secs)
+      }, 2500);
 
     } catch (err) {
       alert('SYSTEM ERROR: Crawler failed.');

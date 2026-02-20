@@ -1,34 +1,59 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { Calendar, User, Tag, ArrowLeft, ChevronRight, Clock, LayoutGrid, CheckCircle2 } from 'lucide-react';
+import { 
+  Calendar, User, Tag, ArrowLeft, ChevronRight, Clock, 
+  LayoutGrid, CheckCircle2, Share2, Facebook, Twitter, Linkedin 
+} from 'lucide-react';
 import Link from 'next/link';
 import 'react-quill-new/dist/quill.snow.css';
 
-// 🚀 AUTO-SEO GENERATOR
+// 🚀 AUTO-SEO & OG TAG GENERATOR
 export async function generateMetadata(props) {
   const params = await props.params;
   const post = await prisma.blogPost.findUnique({ where: { slug: params.slug } });
   if (!post) return { title: 'Post Not Found | NameDotify' };
+  
+  const siteUrl = "https://namedotify.com";
+  const postUrl = `${siteUrl}/blog/${post.slug}`;
+
   return {
     title: `${post.title} | NameDotify Blog`,
     description: post.excerpt || `Read ${post.title} on NameDotify.`,
-    openGraph: { title: post.title, description: post.excerpt, type: 'article', publishedTime: post.createdAt, authors: [post.author], images: post.featuredImg ? [post.featuredImg] : [], }
+    alternates: { canonical: postUrl },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: postUrl,
+      siteName: 'NameDotify',
+      type: 'article',
+      publishedTime: post.createdAt,
+      authors: [post.author],
+      images: post.featuredImg ? [{ url: post.featuredImg, width: 1200, height: 630, alt: post.title }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: post.featuredImg ? [post.featuredImg] : [],
+    }
   };
 }
 
 export default async function SingleBlogPost(props) {
   const params = await props.params;
-  
   const post = await prisma.blogPost.findUnique({
     where: { slug: params.slug, status: 'published' }
   });
   if (!post) notFound();
 
-  // ✅ FIXED: Real Word Count with Space Injection to prevent word sticking
-  const plainText = post.content.replace(/<[^>]+>/g, ' '); // Tags की जगह स्पेस डालें
-  const wordCount = plainText.split(/\s+/).filter(word => word.length > 0).length; // अब शब्द सही गिने जाएंगे
-  const readTime = Math.max(1, Math.ceil(wordCount / 200)); 
+  // ✅ FIXED READ TIME: Strictly calculating based on visible text
+  const contentForCounting = post.content || "";
+  const words = contentForCounting.replace(/<[^>]*>/g, ' ').trim().split(/\s+/);
+  const wordCount = words.filter(w => w.length > 0).length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+  const postUrl = `https://namedotify.com/blog/${post.slug}`;
 
   const categoriesData = await prisma.blogPost.groupBy({
     by: ['category'], _count: { id: true }, where: { status: 'published' }
@@ -41,57 +66,58 @@ export default async function SingleBlogPost(props) {
     select: { title: true, slug: true, featuredImg: true, createdAt: true }
   });
 
-  const schemaMarkup = {
-    "@context": "https://schema.org", "@type": "BlogPosting", "mainEntityOfPage": { "@type": "WebPage", "@id": `https://namedotify.com/blog/${post.slug}` },
-    "headline": post.title, "image": post.featuredImg ? [post.featuredImg] : [],
-    "datePublished": post.createdAt, "dateModified": post.updatedAt, "author": { "@type": "Person", "name": post.author }, "description": post.excerpt
-  };
-
   return (
     <div className="min-h-screen bg-white pt-24 pb-20 font-sans selection:bg-blue-100 selection:text-blue-900">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }} />
-
+      
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 mt-8">
         
-        {/* ================= MAIN ARTICLE BODY (LEFT SIDE) ================= */}
         <main className="w-full lg:w-[68%] min-w-0">
           <article>
-            {/* Breadcrumb & Category */}
             <div className="flex items-center gap-3 text-sm font-bold mb-6">
               <Link href="/blog" className="text-slate-400 hover:text-blue-600 transition">Blog</Link>
               <span className="text-slate-300">/</span>
               <span className="text-blue-600 uppercase tracking-widest text-xs">{post.category}</span>
             </div>
 
-            {/* Title (Huge SEJ Style) */}
             <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-black text-slate-900 tracking-tight leading-[1.1] mb-8 break-words">
               {post.title}
             </h1>
             
-            {/* Author Meta Info */}
-            <div className="flex items-center gap-4 py-6 border-y border-slate-100 mb-10">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-700 font-black text-lg border border-blue-200">
-                {post.author.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p className="font-bold text-slate-900">{post.author}</p>
-                <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">
-                  <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                  <span>{readTime} MIN READ</span>
+            <div className="flex flex-wrap items-center justify-between gap-6 py-6 border-y border-slate-100 mb-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-lg">
+                  {post.author.charAt(0).toUpperCase()}
                 </div>
+                <div>
+                  <p className="font-bold text-slate-900">{post.author}</p>
+                  <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">
+                    <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                    <span>{readTime} MIN READ</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 🔗 SOCIAL SHARE BUTTONS */}
+              <div className="flex items-center gap-2">
+                <a href={`https://www.facebook.com/sharer/sharer.php?u=${postUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-blue-600 hover:text-white transition shadow-sm border border-slate-100">
+                  <Facebook size={18} />
+                </a>
+                <a href={`https://twitter.com/intent/tweet?url=${postUrl}&text=${post.title}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-black hover:text-white transition shadow-sm border border-slate-100">
+                  <Twitter size={18} />
+                </a>
+                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-blue-700 hover:text-white transition shadow-sm border border-slate-100">
+                  <Linkedin size={18} />
+                </a>
               </div>
             </div>
 
-            {/* Featured Image (Full bleed in column) */}
             {post.featuredImg && (
               <figure className="mb-12">
-                <img src={post.featuredImg} alt={post.imageAlt || post.title} className="w-full h-auto rounded-3xl object-cover shadow-sm border border-slate-100" />
-                {post.imageAlt && <figcaption className="text-center text-xs text-slate-400 mt-3 font-medium">{post.imageAlt}</figcaption>}
+                <img src={post.featuredImg} alt={post.title} className="w-full h-auto rounded-3xl object-cover shadow-sm border border-slate-100" />
               </figure>
             )}
 
-            {/* 📝 THE CONTENT */}
             <div 
               className="w-full max-w-none text-lg text-slate-800 break-words overflow-hidden
               [&_p]:mb-6 [&_p]:leading-relaxed 
@@ -104,22 +130,9 @@ export default async function SingleBlogPost(props) {
               [&_img]:rounded-3xl [&_img]:my-8 [&_img]:shadow-md border-[&_img]:border-slate-100"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
-
-            {/* Tags (Bottom) */}
-            {post.tags && (
-              <div className="mt-16 pt-8 border-t border-slate-100 flex flex-wrap items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 mr-2">Tags:</span>
-                {post.tags.split(',').map((tag, i) => (
-                  <span key={i} className="px-4 py-1.5 bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-full border border-slate-200 hover:border-blue-300 hover:text-blue-700 transition cursor-pointer">
-                    {tag.trim()}
-                  </span>
-                ))}
-              </div>
-            )}
           </article>
         </main>
 
-        {/* ================= RIGHT SIDEBAR ================= */}
         <aside className="w-full lg:w-[32%] flex-shrink-0">
           <div className="sticky top-28 space-y-10">
             {activeCategories.length > 0 && (
@@ -137,7 +150,7 @@ export default async function SingleBlogPost(props) {
                 </ul>
               </div>
             )}
-
+            
             {recentPosts.length > 0 && (
               <div>
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3">Recent Posts</h3>
@@ -151,17 +164,6 @@ export default async function SingleBlogPost(props) {
                 </div>
               </div>
             )}
-
-            <div className="bg-slate-900 rounded-3xl p-8 text-center shadow-xl border border-slate-800">
-              <div className="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 size={24} />
-              </div>
-              <h3 className="text-white font-black text-xl mb-3">Free SEO Tools</h3>
-              <p className="text-slate-400 text-sm mb-6 line-clamp-3">Boost your website traffic with NameDotify's suite of 20+ free webmaster tools.</p>
-              <Link href="/" className="block w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">
-                Explore Tools
-              </Link>
-            </div>
           </div>
         </aside>
       </div>

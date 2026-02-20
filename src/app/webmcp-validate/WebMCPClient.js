@@ -122,7 +122,7 @@ export default function WebMCPClient() {
             <div className="flex items-center gap-3 text-sm font-bold text-indigo-400 mb-3 bg-slate-950/50 p-4 rounded-xl border border-indigo-900/50">
               <Terminal size={18} className="animate-pulse text-pink-500" />
               <span className="font-mono tracking-widest uppercase">{actionText}</span>
-              <span className="ml-auto text-indigo-300">{Math.round(progress)}%</span>
+              <span className="ml-auto text-indigo-2000">{Math.round(progress)}%</span>
             </div>
             <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-500 to-pink-500 h-2 rounded-full transition-all duration-500 relative" style={{ width: `${progress}%` }}>

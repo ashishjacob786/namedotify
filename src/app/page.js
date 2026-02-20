@@ -49,8 +49,29 @@ export default function HomePage() {
     }, 1000);
   };
 
-  // ✅ UPDATED TOOLS LIST (Now with all 20 Tools)
+  // ✅ UPDATED TOOLS LIST (Now with all 23 Tools)
   const tools = [
+    { 
+      name: 'WebMCP Validator', 
+      icon: <CheckCircle className="w-8 h-8 text-emerald-500" />, 
+      desc: 'Check if your website is WebMCP compliant and ready for AI Agents.', 
+      link: '/webmcp-validate',
+      badge: 'New & Hot'
+    },
+    { 
+      name: 'WebMCP Schema Gen', 
+      icon: <Target className="w-8 h-8 text-violet-500" />, 
+      desc: 'Generate manifests to make your site instantly discoverable by AI.', 
+      link: '/webmcp-schema-generator',
+      badge: 'New'
+    },
+    { 
+      name: 'Advanced SEO Auditor', 
+      icon: <Search className="w-8 h-8 text-amber-500" />, 
+      desc: 'Perform a comprehensive technical and on-page SEO audit instantly.', 
+      link: '/seo-auditor',
+      badge: 'Hot'
+    },
     { 
       name: 'Device Mockup Studio', 
       icon: <Layers className="w-8 h-8 text-rose-500" />, 

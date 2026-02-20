@@ -52,7 +52,8 @@ export default async function SingleBlogPost(props) {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 mt-8">
         
         {/* ================= MAIN ARTICLE BODY (LEFT SIDE) ================= */}
-        <main className="w-full lg:w-[68%]">
+        {/* ✅ FIXED: Added min-w-0 to prevent Flexbox blowout */}
+        <main className="w-full lg:w-[68%] min-w-0">
           <article>
             {/* Breadcrumb & Category */}
             <div className="flex items-center gap-3 text-sm font-bold mb-6">
@@ -62,7 +63,7 @@ export default async function SingleBlogPost(props) {
             </div>
 
             {/* Title (Huge SEJ Style) */}
-            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-black text-slate-900 tracking-tight leading-[1.1] mb-8">
+            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-black text-slate-900 tracking-tight leading-[1.1] mb-8 break-words">
               {post.title}
             </h1>
             
@@ -90,8 +91,9 @@ export default async function SingleBlogPost(props) {
             )}
 
             {/* 📝 THE CONTENT (100% Forced Tailwind Styling) */}
+            {/* ✅ FIXED: Added w-full, break-words, and overflow-hidden to keep text inside */}
             <div 
-              className="max-w-none text-lg text-slate-800 
+              className="w-full max-w-none text-lg text-slate-800 break-words overflow-hidden
               [&>p]:mb-6 [&>p]:leading-relaxed 
               [&>h2]:text-3xl md:[&>h2]:text-4xl [&>h2]:font-black [&>h2]:text-slate-900 [&>h2]:mt-10 [&>h2]:mb-4 
               [&>h3]:text-2xl [&>h3]:font-extrabold [&>h3]:text-slate-900 [&>h3]:mt-8 [&>h3]:mb-4 

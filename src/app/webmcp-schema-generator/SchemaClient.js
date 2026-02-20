@@ -98,18 +98,21 @@ export default function SchemaClient() {
             <label className="block text-sm font-bold text-gray-700 mb-2">Website Name</label>
             <div className="relative">
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="e.g. NameDotify" className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition" />
+              {/* ✅ Added text-gray-900 */}
+              <input type="text" value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="e.g. NameDotify" className="text-gray-900 w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition" />
             </div>
           </div>
           
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Website URL</label>
-            <input type="url" value={siteUrl} onChange={(e) => setSiteUrl(e.target.value)} placeholder="https://namedotify.com" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition" />
+            {/* ✅ Added text-gray-900 */}
+            <input type="url" value={siteUrl} onChange={(e) => setSiteUrl(e.target.value)} placeholder="https://namedotify.com" className="text-gray-900 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition" />
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">AI Description <span className="text-xs text-gray-400 font-normal">(Tell AI what your site does)</span></label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" placeholder="An advanced suite of SEO and developer tools..." className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition resize-none"></textarea>
+            {/* ✅ Added text-gray-900 */}
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" placeholder="An advanced suite of SEO and developer tools..." className="text-gray-900 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition resize-none"></textarea>
           </div>
 
           <div className="pt-6 border-t border-gray-100">
@@ -123,10 +126,13 @@ export default function SchemaClient() {
                 <div key={index} className="p-4 bg-gray-50 border border-gray-200 rounded-xl relative group">
                   <button onClick={() => removeTool(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition"><Trash2 size={16} /></button>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <input type="text" placeholder="Tool Name (e.g. check_seo)" value={tool.name} onChange={(e) => updateTool(index, 'name', e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
-                    <input type="text" placeholder="Endpoint (e.g. /api/seo)" value={tool.url} onChange={(e) => updateTool(index, 'url', e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
+                    {/* ✅ Added text-gray-900 */}
+                    <input type="text" placeholder="Tool Name (e.g. check_seo)" value={tool.name} onChange={(e) => updateTool(index, 'name', e.target.value)} className="text-gray-900 w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
+                    {/* ✅ Added text-gray-900 */}
+                    <input type="text" placeholder="Endpoint (e.g. /api/seo)" value={tool.url} onChange={(e) => updateTool(index, 'url', e.target.value)} className="text-gray-900 w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
                   </div>
-                  <input type="text" placeholder="Description of what this tool does..." value={tool.description} onChange={(e) => updateTool(index, 'description', e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
+                  {/* ✅ Added text-gray-900 */}
+                  <input type="text" placeholder="Description of what this tool does..." value={tool.description} onChange={(e) => updateTool(index, 'description', e.target.value)} className="text-gray-900 w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-violet-500" />
                 </div>
               ))}
               {tools.length === 0 && <p className="text-sm text-gray-400 text-center py-2">No tools added. AI will only have read-access.</p>}

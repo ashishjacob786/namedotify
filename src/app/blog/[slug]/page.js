@@ -25,8 +25,10 @@ export default async function SingleBlogPost(props) {
   });
   if (!post) notFound();
 
-  // Read Time Calculation (Rough estimate)
-  const readTime = Math.ceil(post.content.replace(/<[^>]*>?/gm, '').split(/\s+/).length / 200);
+  // ✅ FIXED: Real Word Count for Read Time
+  const plainText = post.content.replace(/<[^>]+>/g, ''); // HTML हटाओ
+  const wordCount = plainText.split(/\s+/).filter(word => word.length > 0).length; // सिर्फ शब्द गिनो
+  const readTime = Math.max(1, Math.ceil(wordCount / 200)); // कम से कम 1 मिनट तो दिखाओ
 
   const categoriesData = await prisma.blogPost.groupBy({
     by: ['category'], _count: { id: true }, where: { status: 'published' }
@@ -52,7 +54,6 @@ export default async function SingleBlogPost(props) {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 mt-8">
         
         {/* ================= MAIN ARTICLE BODY (LEFT SIDE) ================= */}
-        {/* ✅ FIXED: Added min-w-0 to prevent Flexbox blowout */}
         <main className="w-full lg:w-[68%] min-w-0">
           <article>
             {/* Breadcrumb & Category */}
@@ -90,18 +91,18 @@ export default async function SingleBlogPost(props) {
               </figure>
             )}
 
-            {/* 📝 THE CONTENT (100% Forced Tailwind Styling) */}
-            {/* ✅ FIXED: Added w-full, break-words, and overflow-hidden to keep text inside */}
+            {/* 📝 THE CONTENT */}
+            {/* ✅ FIXED: Changed [&>a] to [&_a] to target nested links, bolded them, and added deep styling */}
             <div 
               className="w-full max-w-none text-lg text-slate-800 break-words overflow-hidden
-              [&>p]:mb-6 [&>p]:leading-relaxed 
-              [&>h2]:text-3xl md:[&>h2]:text-4xl [&>h2]:font-black [&>h2]:text-slate-900 [&>h2]:mt-10 [&>h2]:mb-4 
-              [&>h3]:text-2xl [&>h3]:font-extrabold [&>h3]:text-slate-900 [&>h3]:mt-8 [&>h3]:mb-4 
-              [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:mb-2 
-              [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-6 [&>ol>li]:mb-2 
-              [&>strong]:font-black [&>strong]:text-black 
-              [&>a]:text-blue-600 [&>a]:underline [&>a]:font-bold hover:[&>a]:text-blue-700
-              [&>img]:rounded-3xl [&>img]:my-8 [&>img]:shadow-md border-[&>img]:border-slate-100"
+              [&_p]:mb-6 [&_p]:leading-relaxed 
+              [&_h2]:text-3xl md:[&_h2]:text-4xl [&_h2]:font-black [&_h2]:text-slate-900 [&_h2]:mt-10 [&_h2]:mb-4 
+              [&_h3]:text-2xl [&_h3]:font-extrabold [&_h3]:text-slate-900 [&_h3]:mt-8 [&_h3]:mb-4 
+              [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6 [&_ul_li]:mb-2 
+              [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6 [&_ol_li]:mb-2 
+              [&_strong]:font-black [&_strong]:text-black 
+              [&_a]:text-blue-600 [&_a]:underline [&_a]:font-bold hover:[&_a]:text-blue-800
+              [&_img]:rounded-3xl [&_img]:my-8 [&_img]:shadow-md border-[&_img]:border-slate-100"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 

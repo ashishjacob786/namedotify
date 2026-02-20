@@ -1,6 +1,5 @@
 @import "tailwindcss";
-@import "tailwindcss";
-@plugin "@tailwindcss/typography"; /* ✅ बस यह लाइन जोड़नी है */
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;

@@ -25,3 +25,21 @@ model PageView {
   @@index([pageUrl])
   @@index([visitorId])
 }
+
+// (ऊपर आपका पुराना कोड रहेगा, जैसे PageView वाला मॉडल)
+
+// 🚀 Advanced Blog CMS Model
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique // Permalink (e.g., /blog/my-post)
+  content     String   @db.Text // Full HTML content from the WP-style editor
+  excerpt     String?  // Short description for SEO and Blog Card
+  category    String   @default("General")
+  tags        String   // Storing tags as comma-separated string
+  author      String   @default("NameDotify Admin")
+  status      String   @default("published") // 'draft' or 'published'
+  featuredImg String?  // URL of the cover image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

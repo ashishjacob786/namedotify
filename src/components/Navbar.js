@@ -95,6 +95,9 @@ export default function Navbar() {
             <Link href="/" className="px-3 py-2 text-gray-600 hover:text-blue-600 font-bold text-sm transition">
               Home
             </Link>
+            <Link href="/blog" className="px-3 py-2 text-gray-600 hover:text-blue-600 font-bold text-sm transition">
+              Blog
+            </Link>
 
             {navMenu.map((category, index) => (
               <div key={index} className="relative group">

@@ -25,10 +25,10 @@ export default async function SingleBlogPost(props) {
   });
   if (!post) notFound();
 
-  // ✅ FIXED: Real Word Count for Read Time
-  const plainText = post.content.replace(/<[^>]+>/g, ''); // HTML हटाओ
-  const wordCount = plainText.split(/\s+/).filter(word => word.length > 0).length; // सिर्फ शब्द गिनो
-  const readTime = Math.max(1, Math.ceil(wordCount / 200)); // कम से कम 1 मिनट तो दिखाओ
+  // ✅ FIXED: Real Word Count with Space Injection to prevent word sticking
+  const plainText = post.content.replace(/<[^>]+>/g, ' '); // Tags की जगह स्पेस डालें
+  const wordCount = plainText.split(/\s+/).filter(word => word.length > 0).length; // अब शब्द सही गिने जाएंगे
+  const readTime = Math.max(1, Math.ceil(wordCount / 200)); 
 
   const categoriesData = await prisma.blogPost.groupBy({
     by: ['category'], _count: { id: true }, where: { status: 'published' }
@@ -92,7 +92,6 @@ export default async function SingleBlogPost(props) {
             )}
 
             {/* 📝 THE CONTENT */}
-            {/* ✅ FIXED: Changed [&>a] to [&_a] to target nested links, bolded them, and added deep styling */}
             <div 
               className="w-full max-w-none text-lg text-slate-800 break-words overflow-hidden
               [&_p]:mb-6 [&_p]:leading-relaxed 
@@ -120,11 +119,9 @@ export default async function SingleBlogPost(props) {
           </article>
         </main>
 
-        {/* ================= RIGHT SIDEBAR (Sticky, Pro Style) ================= */}
+        {/* ================= RIGHT SIDEBAR ================= */}
         <aside className="w-full lg:w-[32%] flex-shrink-0">
           <div className="sticky top-28 space-y-10">
-            
-            {/* Widget 1: Categories (Clean look) */}
             {activeCategories.length > 0 && (
               <div>
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3">Topics</h3>
@@ -141,7 +138,6 @@ export default async function SingleBlogPost(props) {
               </div>
             )}
 
-            {/* Widget 2: Recent Posts */}
             {recentPosts.length > 0 && (
               <div>
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3">Recent Posts</h3>
@@ -156,7 +152,6 @@ export default async function SingleBlogPost(props) {
               </div>
             )}
 
-            {/* Widget 3: CTA Box */}
             <div className="bg-slate-900 rounded-3xl p-8 text-center shadow-xl border border-slate-800">
               <div className="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 size={24} />
@@ -167,10 +162,8 @@ export default async function SingleBlogPost(props) {
                 Explore Tools
               </Link>
             </div>
-
           </div>
         </aside>
-
       </div>
     </div>
   );

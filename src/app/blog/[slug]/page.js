@@ -89,9 +89,17 @@ export default async function SingleBlogPost(props) {
               </figure>
             )}
 
-            {/* 📝 THE CONTENT (Bulletproof CSS Applied) */}
+            {/* 📝 THE CONTENT (100% Forced Tailwind Styling) */}
             <div 
-              className="custom-blog-content max-w-none text-lg"
+              className="max-w-none text-lg text-slate-800 
+              [&>p]:mb-6 [&>p]:leading-relaxed 
+              [&>h2]:text-3xl md:[&>h2]:text-4xl [&>h2]:font-black [&>h2]:text-slate-900 [&>h2]:mt-10 [&>h2]:mb-4 
+              [&>h3]:text-2xl [&>h3]:font-extrabold [&>h3]:text-slate-900 [&>h3]:mt-8 [&>h3]:mb-4 
+              [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-6 [&>ul>li]:mb-2 
+              [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-6 [&>ol>li]:mb-2 
+              [&>strong]:font-black [&>strong]:text-black 
+              [&>a]:text-blue-600 [&>a]:underline [&>a]:font-bold hover:[&>a]:text-blue-700
+              [&>img]:rounded-3xl [&>img]:my-8 [&>img]:shadow-md border-[&>img]:border-slate-100"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 

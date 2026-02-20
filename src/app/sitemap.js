@@ -1,7 +1,7 @@
 export default function sitemap() {
   const baseUrl = 'https://namedotify.com';
 
-  // Add all your pages here (Total 20 Tools + 4 Static Pages + Home)
+  // Add all your pages here (Total 23 Tools + 4 Static Pages + Home)
   const routes = [
     '',
     '/dns',
@@ -9,21 +9,24 @@ export default function sitemap() {
     '/generator',
     '/hosting',
     '/ip',
-    '/live-editor',       // Added
-    '/malware-scanner',   // Added
+    '/live-editor',
+    '/malware-scanner',
     '/mockup',
     '/password',
     '/qrcode',
     '/reverse-ip',
-    '/schema-generator',  // Added
+    '/schema-generator',
+    '/seo-auditor',             // ✅ Added Advanced SEO Auditor
     '/signature',
     '/speed-test',
     '/ssl',
     '/status',
-    '/utm-builder',       // Added
+    '/utm-builder',
+    '/webmcp-schema-generator', // ✅ Added WebMCP Schema Gen
+    '/webmcp-validate',         // ✅ Added WebMCP Validator
     '/website-speed',
     '/whois',
-    '/youtube-analyzer',  // Added
+    '/youtube-analyzer',
     
     // Static Pages
     '/about',

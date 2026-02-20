@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Menu, X, LayoutGrid, ChevronDown, 
-  Search, ShieldCheck, Palette, Briefcase, Lock // ✅ Lock आइकॉन ऐड किया
+  Search, ShieldCheck, Palette, Briefcase, Lock 
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -18,12 +18,15 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // ✅ PERFECTLY CATEGORIZED ACTUAL TOOLS
+  // ✅ PERFECTLY CATEGORIZED ACTUAL TOOLS (Updated with WebMCP & SEO Auditor)
   const navMenu = [
     {
       label: 'SEO & Web',
       icon: <Search size={18} className="text-blue-600" />,
       items: [
+        { name: 'WebMCP Validator', href: '/webmcp-validate' }, // NEW
+        { name: 'WebMCP Schema Gen', href: '/webmcp-schema-generator' }, // NEW
+        { name: 'Advanced SEO Auditor', href: '/seo-auditor' }, // NEW
         { name: 'YouTube SEO Analyzer', href: '/youtube-analyzer' },
         { name: 'Website Speed Test', href: '/website-speed' },
         { name: 'Page Speed Check', href: '/speed-test' },

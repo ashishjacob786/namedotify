@@ -89,9 +89,9 @@ export default async function SingleBlogPost(props) {
               </figure>
             )}
 
-            {/* 📝 THE CONTENT (Fixed: Removed ql-editor class so Tailwind Prose works perfectly) */}
+            {/* 📝 THE CONTENT (Bulletproof CSS Applied) */}
             <div 
-              className="prose prose-lg md:prose-xl max-w-none prose-slate text-slate-800 prose-headings:text-slate-900 prose-headings:font-extrabold prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-3xl prose-img:shadow-sm prose-img:border prose-img:border-slate-100"
+              className="custom-blog-content max-w-none text-lg"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 

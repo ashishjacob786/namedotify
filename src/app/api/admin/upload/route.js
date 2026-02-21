@@ -12,8 +12,11 @@ export async function POST(req) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // जहाँ फोटो सेव करनी है, उस फोल्डर का रास्ता
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    // 🚀 THE MASTER FIX: Absolute Path for VPS (Production), Standard for Local (Mac)
+    const isProd = process.env.NODE_ENV === 'production';
+    const uploadDir = isProd 
+      ? '/var/www/namedotify/public/uploads' 
+      : path.join(process.cwd(), 'public', 'uploads');
 
     // 🚀 MAGIC FIX: अगर 'uploads' फोल्डर नहीं है, तो उसे अपने आप बना दो
     try {
@@ -27,7 +30,7 @@ export async function POST(req) {
     const uniqueName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
     const filePath = path.join(uploadDir, uniqueName);
 
-    // फोटो को सेव करना
+    // फोटो को असली फोल्डर में सेव करना
     await writeFile(filePath, buffer);
 
     return NextResponse.json({ success: true, url: `/uploads/${uniqueName}` });

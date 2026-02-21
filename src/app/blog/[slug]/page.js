@@ -3,7 +3,8 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { 
   Calendar, User, Tag, ArrowLeft, ChevronRight, Clock, 
-  LayoutGrid, CheckCircle2, Share2, Facebook, Twitter, Linkedin 
+  LayoutGrid, CheckCircle2, Share2, Facebook, Twitter, 
+  Linkedin, MessageCircle, Send, Mail 
 } from 'lucide-react';
 import Link from 'next/link';
 import 'react-quill-new/dist/quill.snow.css';
@@ -47,13 +48,23 @@ export default async function SingleBlogPost(props) {
   });
   if (!post) notFound();
 
-  // ✅ FIXED READ TIME: Strictly calculating based on visible text
-  const contentForCounting = post.content || "";
-  const words = contentForCounting.replace(/<[^>]*>/g, ' ').trim().split(/\s+/);
-  const wordCount = words.filter(w => w.length > 0).length;
+  // ✅ 100% BULLETPROOF READ TIME CALCULATOR
+  const htmlContent = post.content || "";
+  const plainText = htmlContent
+    .replace(/<[^>]+>/g, ' ') // HTML टैग्स को स्पेस बनाएं
+    .replace(/&nbsp;/g, ' ')  // हिडन स्पेस को नॉर्मल स्पेस बनाएं
+    .replace(/\s+/g, ' ')     // एक्स्ट्रा गैप को सिंगल गैप बनाएं
+    .trim();
+    
+  const wordCount = plainText.split(' ').filter(word => word.length > 0).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
+  // Console log for server debugging
+  console.log(`[Blog Rendered] ${post.slug} | Words: ${wordCount} | Read Time: ${readTime} min`);
+
   const postUrl = `https://namedotify.com/blog/${post.slug}`;
+  const encodedUrl = encodeURIComponent(postUrl);
+  const encodedTitle = encodeURIComponent(post.title);
 
   const categoriesData = await prisma.blogPost.groupBy({
     by: ['category'], _count: { id: true }, where: { status: 'published' }
@@ -71,6 +82,7 @@ export default async function SingleBlogPost(props) {
       
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 mt-8">
         
+        {/* ================= MAIN ARTICLE BODY (LEFT SIDE) ================= */}
         <main className="w-full lg:w-[68%] min-w-0">
           <article>
             <div className="flex items-center gap-3 text-sm font-bold mb-6">
@@ -93,21 +105,30 @@ export default async function SingleBlogPost(props) {
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">
                     <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span>{readTime} MIN READ</span>
+                    <span className="text-blue-600">{readTime} MIN READ</span>
                   </div>
                 </div>
               </div>
 
-              {/* 🔗 SOCIAL SHARE BUTTONS */}
+              {/* 🔗 MULTIPLE SOCIAL SHARE BUTTONS (WhatsApp, Telegram, FB, X, LinkedIn, Email) */}
               <div className="flex items-center gap-2">
-                <a href={`https://www.facebook.com/sharer/sharer.php?u=${postUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-blue-600 hover:text-white transition shadow-sm border border-slate-100">
+                <a href={`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition shadow-sm border border-green-100" title="Share on WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+                <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-sky-50 text-sky-500 hover:bg-sky-500 hover:text-white transition shadow-sm border border-sky-100" title="Share on Telegram">
+                  <Send size={18} />
+                </a>
+                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition shadow-sm border border-blue-100" title="Share on Facebook">
                   <Facebook size={18} />
                 </a>
-                <a href={`https://twitter.com/intent/tweet?url=${postUrl}&text=${post.title}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-black hover:text-white transition shadow-sm border border-slate-100">
+                <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-black hover:text-white transition shadow-sm border border-slate-100" title="Share on X (Twitter)">
                   <Twitter size={18} />
                 </a>
-                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-slate-50 text-slate-600 hover:bg-blue-700 hover:text-white transition shadow-sm border border-slate-100">
+                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-700 hover:text-white transition shadow-sm border border-indigo-100" title="Share on LinkedIn">
                   <Linkedin size={18} />
+                </a>
+                <a href={`mailto:?subject=${encodedTitle}&body=Read%20this%20awesome%20article:%20${encodedUrl}`} className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-100" title="Share via Email (Copy Link)">
+                  <Mail size={18} />
                 </a>
               </div>
             </div>
@@ -118,6 +139,7 @@ export default async function SingleBlogPost(props) {
               </figure>
             )}
 
+            {/* 📝 THE CONTENT */}
             <div 
               className="w-full max-w-none text-lg text-slate-800 break-words overflow-hidden
               [&_p]:mb-6 [&_p]:leading-relaxed 
@@ -133,6 +155,7 @@ export default async function SingleBlogPost(props) {
           </article>
         </main>
 
+        {/* ================= RIGHT SIDEBAR ================= */}
         <aside className="w-full lg:w-[32%] flex-shrink-0">
           <div className="sticky top-28 space-y-10">
             {activeCategories.length > 0 && (
@@ -164,6 +187,17 @@ export default async function SingleBlogPost(props) {
                 </div>
               </div>
             )}
+
+            <div className="bg-slate-900 rounded-3xl p-8 text-center shadow-xl border border-slate-800">
+              <div className="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={24} />
+              </div>
+              <h3 className="text-white font-black text-xl mb-3">Free SEO Tools</h3>
+              <p className="text-slate-400 text-sm mb-6 line-clamp-3">Boost your website traffic with NameDotify's suite of 20+ free webmaster tools.</p>
+              <Link href="/" className="block w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">
+                Explore Tools
+              </Link>
+            </div>
           </div>
         </aside>
       </div>

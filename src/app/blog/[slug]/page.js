@@ -51,16 +51,16 @@ export default async function SingleBlogPost(props) {
   // ✅ 100% BULLETPROOF READ TIME CALCULATOR
   const htmlContent = post.content || "";
   const plainText = htmlContent
-    .replace(/<[^>]+>/g, ' ') // HTML टैग्स को स्पेस बनाएं
-    .replace(/&nbsp;/g, ' ')  // हिडन स्पेस को नॉर्मल स्पेस बनाएं
-    .replace(/\s+/g, ' ')     // एक्स्ट्रा गैप को सिंगल गैप बनाएं
+    .replace(/<[^>]+>/g, ' ') 
+    .replace(/&nbsp;/g, ' ')  
+    .replace(/\s+/g, ' ')     
     .trim();
     
   const wordCount = plainText.split(' ').filter(word => word.length > 0).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  // Console log for server debugging
-  console.log(`[Blog Rendered] ${post.slug} | Words: ${wordCount} | Read Time: ${readTime} min`);
+  // ✅ THE MASTER FIX: Clean the content before showing it so it doesn't break layout
+  const cleanContent = htmlContent.replace(/&nbsp;/g, ' ');
 
   const postUrl = `https://namedotify.com/blog/${post.slug}`;
   const encodedUrl = encodeURIComponent(postUrl);
@@ -84,7 +84,7 @@ export default async function SingleBlogPost(props) {
         
         {/* ================= MAIN ARTICLE BODY (LEFT SIDE) ================= */}
         <main className="w-full lg:w-[68%] min-w-0">
-          <article>
+          <article className="min-w-0">
             <div className="flex items-center gap-3 text-sm font-bold mb-6">
               <Link href="/blog" className="text-slate-400 hover:text-blue-600 transition">Blog</Link>
               <span className="text-slate-300">/</span>
@@ -110,7 +110,7 @@ export default async function SingleBlogPost(props) {
                 </div>
               </div>
 
-              {/* 🔗 MULTIPLE SOCIAL SHARE BUTTONS (WhatsApp, Telegram, FB, X, LinkedIn, Email) */}
+              {/* 🔗 MULTIPLE SOCIAL SHARE BUTTONS */}
               <div className="flex items-center gap-2">
                 <a href={`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition shadow-sm border border-green-100" title="Share on WhatsApp">
                   <MessageCircle size={18} />
@@ -127,7 +127,7 @@ export default async function SingleBlogPost(props) {
                 <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-700 hover:text-white transition shadow-sm border border-indigo-100" title="Share on LinkedIn">
                   <Linkedin size={18} />
                 </a>
-                <a href={`mailto:?subject=${encodedTitle}&body=Read%20this%20awesome%20article:%20${encodedUrl}`} className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-100" title="Share via Email (Copy Link)">
+                <a href={`mailto:?subject=${encodedTitle}&body=Read%20this%20awesome%20article:%20${encodedUrl}`} className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-100" title="Share via Email">
                   <Mail size={18} />
                 </a>
               </div>
@@ -140,8 +140,9 @@ export default async function SingleBlogPost(props) {
             )}
 
             {/* 📝 THE CONTENT */}
+            {/* ✅ FIXED: dangerouslySetInnerHTML is now using cleanContent */}
             <div 
-              className="w-full max-w-none text-lg text-slate-800
+              className="w-full min-w-0 max-w-full text-lg text-slate-800 overflow-hidden
               [&_p]:mb-6 [&_p]:leading-relaxed 
               [&_h2]:text-3xl md:[&_h2]:text-4xl [&_h2]:font-black [&_h2]:text-slate-900 [&_h2]:mt-10 [&_h2]:mb-4 
               [&_h3]:text-2xl [&_h3]:font-extrabold [&_h3]:text-slate-900 [&_h3]:mt-8 [&_h3]:mb-4 
@@ -150,7 +151,7 @@ export default async function SingleBlogPost(props) {
               [&_strong]:font-black [&_strong]:text-black 
               [&_a]:text-blue-600 [&_a]:underline [&_a]:font-bold hover:[&_a]:text-blue-800 [&_a]:break-all
               [&_img]:rounded-3xl [&_img]:my-8 [&_img]:shadow-md border-[&_img]:border-slate-100"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: cleanContent }}
             />
           </article>
         </main>

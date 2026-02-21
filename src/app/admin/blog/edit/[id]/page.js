@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Save, Send, Image as ImageIcon, Link as LinkIcon, Tag, LayoutList, PenTool, Loader2, UploadCloud } from 'lucide-react';
@@ -9,10 +9,11 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 export default function EditBlog({ params }) {
   const router = useRouter();
-  // 🔒 SECURITY GUARD: Redirect unauthenticated users instantly
+  const [isAuthorized, setIsAuthorized] = useState(false); // ✅ Added loading state
+
+  // 🔒 SECURITY GUARD
   useEffect(() => {
     const checkSecurity = () => {
-      // यहाँ हम चेक कर रहे हैं कि ब्राउज़र के पास एडमिन का पास (Token) है या नहीं
       const hasAccess = localStorage.getItem('token') || 
                         localStorage.getItem('adminToken') || 
                         localStorage.getItem('isLoggedIn') || 
@@ -21,12 +22,13 @@ export default function EditBlog({ params }) {
       if (!hasAccess) {
         console.warn("🚨 Unauthorized Access! Redirecting to login...");
         router.replace('/admin/login');
+      } else {
+        setIsAuthorized(true); // ✅ Access granted!
       }
     };
-    
     checkSecurity();
   }, [router]);
-  // React 19 का नया तरीका: params को unwrap करना
+
   const resolvedParams = use(params);
   const postId = resolvedParams.id;
 
@@ -39,6 +41,7 @@ export default function EditBlog({ params }) {
   });
 
   useEffect(() => {
+    if (!isAuthorized) return; // ✅ Don't fetch if not authorized
     const fetchPost = async () => {
       try {
         const res = await fetch(`/api/admin/blog?id=${postId}`);
@@ -52,7 +55,7 @@ export default function EditBlog({ params }) {
       }
     };
     fetchPost();
-  }, [postId]);
+  }, [postId, isAuthorized]);
 
   const handleTitleChange = (e) => {
     const title = e.target.value;
@@ -100,7 +103,10 @@ export default function EditBlog({ params }) {
     ],
   };
 
-  if (pageLoad) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-blue-600" size={40}/></div>;
+  // ✅ PREVENT CRASH: Show loading until auth is verified
+  if (!isAuthorized || pageLoad) {
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-blue-600" size={40}/></div>;
+  }
 
   return (
     <div className="max-w-5xl mx-auto font-sans">

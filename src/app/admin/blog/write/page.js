@@ -9,24 +9,34 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 export default function WriteBlog() {
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false); // ✅ Added loading state
+  const [isAuthorized, setIsAuthorized] = useState(false); 
 
-  // 🔒 SECURITY GUARD
+  // 🔒 SMART SECURITY GUARD (Server-Side Verification)
   useEffect(() => {
-    const checkSecurity = () => {
-      const hasAccess = localStorage.getItem('token') || 
-                        localStorage.getItem('adminToken') || 
-                        localStorage.getItem('isLoggedIn') || 
-                        document.cookie.includes('token');
+    const verifyAuth = async () => {
+      try {
+        // हम सीधे API से पूछ रहे हैं कि क्या एडमिन पास वैलिड है?
+        const res = await fetch('/api/admin/blog');
+        
+        // अगर API ने लात मार दी (401/403) या लॉगिन पेज पर धकेल दिया
+        if (res.status === 401 || res.status === 403 || res.redirected) {
+          router.replace('/admin/login');
+          return;
+        }
 
-      if (!hasAccess) {
-        console.warn("🚨 Unauthorized Access! Redirecting to login...");
-        router.replace('/admin/login');
-      } else {
-        setIsAuthorized(true); // ✅ Access granted!
+        const data = await res.json();
+        // अगर API ने JSON में Unauthorized बोला
+        if (data.error && data.error.toLowerCase().includes('unauthorized')) {
+          router.replace('/admin/login');
+          return;
+        }
+
+        setIsAuthorized(true); // ✅ Server approved!
+      } catch (error) {
+        setIsAuthorized(true); // नेटवर्क एरर में फॉर्म खुलने दो, सेव करते वक़्त API रोक ही लेगी
       }
     };
-    checkSecurity();
+    verifyAuth();
   }, [router]);
 
   const [loading, setLoading] = useState(false);
@@ -92,7 +102,7 @@ export default function WriteBlog() {
     ],
   };
 
-  // ✅ PREVENT CRASH: Show loading until auth is verified
+  // ✅ PREVENT CRASH
   if (!isAuthorized) {
     return (
       <div className="flex justify-center items-center h-screen bg-slate-50">

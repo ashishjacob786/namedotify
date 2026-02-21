@@ -9,29 +9,10 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 export default function EditBlog({ params }) {
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false); // ✅ Added loading state
-
-  // 🔒 SECURITY GUARD
-  useEffect(() => {
-    const checkSecurity = () => {
-      const hasAccess = localStorage.getItem('token') || 
-                        localStorage.getItem('adminToken') || 
-                        localStorage.getItem('isLoggedIn') || 
-                        document.cookie.includes('token');
-
-      if (!hasAccess) {
-        console.warn("🚨 Unauthorized Access! Redirecting to login...");
-        router.replace('/admin/login');
-      } else {
-        setIsAuthorized(true); // ✅ Access granted!
-      }
-    };
-    checkSecurity();
-  }, [router]);
-
   const resolvedParams = use(params);
   const postId = resolvedParams.id;
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pageLoad, setPageLoad] = useState(true);
@@ -40,22 +21,39 @@ export default function EditBlog({ params }) {
     category: '', tags: '', author: '', status: 'published', featuredImg: '', imageAlt: ''
   });
 
+  // 🔒 SMART SECURITY GUARD + DATA FETCHING
   useEffect(() => {
-    if (!isAuthorized) return; // ✅ Don't fetch if not authorized
-    const fetchPost = async () => {
+    const fetchPostAndVerify = async () => {
       try {
         const res = await fetch(`/api/admin/blog?id=${postId}`);
+        
+        // 🚨 अगर API ने ऑथराइजेशन फेल कर दिया
+        if (res.status === 401 || res.status === 403 || res.redirected) {
+          router.replace('/admin/login');
+          return;
+        }
+
         const data = await res.json();
-        if (data.success) setFormData(data.post);
-        else alert("Failed to load post");
+        
+        if (data.error && data.error.toLowerCase().includes('unauthorized')) {
+          router.replace('/admin/login');
+          return;
+        }
+
+        if (data.success) {
+          setFormData(data.post);
+          setIsAuthorized(true); // ✅ Server approved!
+        } else {
+          alert("Failed to load post");
+        }
       } catch (err) {
         alert("Network Error");
       } finally {
         setPageLoad(false);
       }
     };
-    fetchPost();
-  }, [postId, isAuthorized]);
+    fetchPostAndVerify();
+  }, [postId, router]);
 
   const handleTitleChange = (e) => {
     const title = e.target.value;
@@ -103,9 +101,9 @@ export default function EditBlog({ params }) {
     ],
   };
 
-  // ✅ PREVENT CRASH: Show loading until auth is verified
+  // ✅ PREVENT CRASH
   if (!isAuthorized || pageLoad) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-blue-600" size={40}/></div>;
+    return <div className="flex justify-center items-center h-screen bg-slate-50"><Loader2 className="animate-spin text-blue-600" size={40}/></div>;
   }
 
   return (

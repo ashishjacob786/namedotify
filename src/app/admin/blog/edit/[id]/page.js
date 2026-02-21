@@ -9,6 +9,23 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 export default function EditBlog({ params }) {
   const router = useRouter();
+  // 🔒 SECURITY GUARD: Redirect unauthenticated users instantly
+  useEffect(() => {
+    const checkSecurity = () => {
+      // यहाँ हम चेक कर रहे हैं कि ब्राउज़र के पास एडमिन का पास (Token) है या नहीं
+      const hasAccess = localStorage.getItem('token') || 
+                        localStorage.getItem('adminToken') || 
+                        localStorage.getItem('isLoggedIn') || 
+                        document.cookie.includes('token');
+
+      if (!hasAccess) {
+        console.warn("🚨 Unauthorized Access! Redirecting to login...");
+        router.replace('/admin/login');
+      }
+    };
+    
+    checkSecurity();
+  }, [router]);
   // React 19 का नया तरीका: params को unwrap करना
   const resolvedParams = use(params);
   const postId = resolvedParams.id;
